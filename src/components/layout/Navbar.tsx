@@ -25,7 +25,7 @@ export default function Navbar() {
         {/* Logo */}
         <div className="flex items-center gap-2">
           <img
-            src="/images/thecanman-logo.png"
+            src="/images/hero-icon.png"
             alt="The CanMan Logo"
             className="h-10 w-auto hover:brightness-110 transition-all cursor-pointer"
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
