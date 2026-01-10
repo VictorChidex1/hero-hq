@@ -265,3 +265,82 @@ By keeping the file in the Parent (), the Parent can:
 3.  Clear the file if the form is reset.
 
 If the Child held the file, the Parent wouldn't know about it until it was too late!
+
+---
+
+## Chapter 4: The Refactor - Component Composition
+
+We just performed a major architectural refactor on the `Header` component. Here is exactly what we did and why.
+
+### 4.1 The Problem: "The God Component"
+Initially, our `Header.tsx` was doing too much:
+1.  It held the "Hiring Heroes" banner.
+2.  It managed the contact phone number.
+3.  It rendered the Logo.
+4.  It handled the Glassmorphism CSS.
+5.  It contained the Navigation links.
+6.  It managed the "Pulsing" CTA animation.
+
+In software engineering, this violates the **Single Responsibility Principle (SRP)**. If we wanted to change the phone number, we risked breaking the Navigation layout.
+
+### 4.2 The Solution: Composition
+We broke the `Header` down into two specialized components and composed them back together.
+
+**The Terminologies:**
+*   **Composition**: Building complex UIs by combining smaller, simpler components. Like building a Lego castle out of small bricks.
+*   **Container Component**: A component (like `Header`) that simply holds other components and lays them out.
+*   **Presentational Component**: A component (like `ServiceStrip`) that just shows data and doesn't have complex logic.
+
+### 4.3 The Code Breakdown
+
+#### 1. The `ServiceStrip` (Top Bar)
+This component has ONE job: Show the urgent contact info.
+
+```typescript
+// ServiceStrip.tsx
+export default function ServiceStrip() {
+  return (
+    <div className="bg-brand-blue...">
+       {/* ... Phone Number & Hiring Message ... */}
+    </div>
+  );
+}
+```
+
+#### 2. The `Navbar` (Main Navigation)
+This component handles the complex interactions.
+
+```typescript
+// Navbar.tsx
+export default function Navbar() {
+  // Logic identifying it's responsible for navigation
+  return (
+    <div className="backdrop-blur-md..."> 
+       {/* ... Logo, Links, & Pulsing Button ... */}
+    </div>
+  );
+}
+```
+
+#### 3. The `Header` (The Container)
+The `Header` became incredibly simple. It just stacks the bricks.
+
+```typescript
+// Header.tsx
+import ServiceStrip from "./ServiceStrip";
+import Navbar from "./Navbar";
+
+export default function Header() {
+  return (
+    <header className="sticky top-0 z-50">
+      <ServiceStrip /> {/* Brick 1 */}
+      <Navbar />       {/* Brick 2 */}
+    </header>
+  );
+}
+```
+
+### 4.4 Why this matters for a "Newbie"
+1.  **Readability**: You can look at `Header.tsx` and understand the layout in 2 seconds.
+2.  **Safety**: You can edit the `ServiceStrip` without fear of breaking the `Navbar`.
+3.  **Reusability**: If you wanted to put the `ServiceStrip` in the Footer too, you now can!
