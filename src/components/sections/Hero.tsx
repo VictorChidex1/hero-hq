@@ -28,15 +28,12 @@ export default function Hero() {
         <div className="absolute inset-0 bg-gradient-to-r from-brand-blue/80 via-transparent to-brand-blue/80 z-10"></div>
       </div>
 
-      <div className="container mx-auto px-4 relative z-20 text-center pt-20">
+      <div className="container mx-auto px-4 relative z-20 text-center pt-48 md:pt-64 pb-15 md:pb-20">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          <div className="inline-block px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-blue-100 text-sm font-semibold mb-6 tracking-wider uppercase">
-            Start Your Legend
-          </div>
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold mb-6 tracking-tight text-white leading-tight drop-shadow-lg">
             Join Our Creative Team!
           </h1>
@@ -46,7 +43,7 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-          className="text-xl md:text-2xl text-blue-50 mb-10 max-w-2xl mx-auto font-light leading-relaxed drop-shadow-md"
+          className="text-xl md:text-2xl text-blue-50 mb-10 max-w-2xl mx-auto font-bold leading-relaxed drop-shadow-md"
         >
           We are looking for the next superhero to join our league of
           extraordinary creators.
