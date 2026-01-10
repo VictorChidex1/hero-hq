@@ -1,7 +1,10 @@
+import { Link } from "react-router-dom";
+
 export default function Footer() {
   return (
     <footer id="contact" className="bg-brand-dark text-white py-12">
       <div className="container mx-auto px-4">
+        {/* ... (lines 5-30 unchanged) ... */}
         <div className="grid md:grid-cols-3 gap-8 mb-8">
           <div>
             <h3 className="font-bold text-lg mb-4">HERO HQ</h3>
@@ -28,6 +31,10 @@ export default function Footer() {
         </div>
         <div className="border-t border-gray-800 pt-8 text-center text-sm text-gray-500">
           © {new Date().getFullYear()} The CanMan. All rights reserved.
+          <span className="mx-2">|</span>
+          <Link to="/login" className="hover:text-gray-300 transition-colors">
+            Admin
+          </Link>
         </div>
       </div>
     </footer>

@@ -2,6 +2,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Layout from "./components/layout/Layout";
 import { Toaster } from "sonner";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
+import AdminDashboard from "./pages/AdminDashboard";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 function App() {
   return (
@@ -14,6 +18,16 @@ function App() {
             <Layout>
               <Home />
             </Layout>
+          }
+        />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
           }
         />
       </Routes>

@@ -10,14 +10,14 @@ service cloud.firestore {
 
     // Applicants Collection (Linked to Floating Form)
     match /applicants/{applicantId} {
-      // 1. No one can read the list of applicants (Admin SDK only)
-      allow read: if false;
+      // 1. Admin Access: Authenticated users can READ and UPDATE
+      allow read, update: if request.auth != null;
 
-      // 2. Anyone can submit an application IF they provide the resume
+      // 2. Public Access: Anyone can CREATE (if valid)
       allow create: if isValidApplication();
       
-      // 3. No one can edit/delete after submission
-      allow update, delete: if false;
+      // 3. No one can DELETE (Safety check)
+      allow delete: if false;
     }
 
     // Validation Logic

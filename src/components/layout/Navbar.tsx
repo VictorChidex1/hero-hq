@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   const scrollToSection = (id: string) => {
-    setIsOpen(false); // Close menu on click
+    setIsOpen(false);
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
@@ -16,7 +17,7 @@ export default function Navbar() {
     <div className="bg-white/80 backdrop-blur-md border-b border-white/20 shadow-sm transition-all duration-300 relative z-40 px-4">
       {/* 
          ARCHITECTURAL NOTE: 
-         We placed 'px-4' on the WRAPPER above, not the container below.
+         I placed 'px-4' on the WRAPPER above, not the container below.
          This matches ServiceStrip.tsx.
          Now both containers have the exact same max-width and centering behavior.
       */}
@@ -51,6 +52,13 @@ export default function Navbar() {
           >
             Contact
           </button>
+
+          <Link
+            to="/login"
+            className="text-sm font-semibold text-gray-400 hover:text-brand-blue transition-colors"
+          >
+            Admin
+          </Link>
 
           {/* Pulsing CTA - Manually aligned with negative margin for optical balance */}
           <button
@@ -94,6 +102,13 @@ export default function Navbar() {
           >
             Contact
           </button>
+          <Link
+            to="/login"
+            className="text-left px-4 py-2 text-gray-400 font-medium hover:bg-blue-50 hover:text-brand-blue rounded-lg transition-colors"
+            onClick={() => setIsOpen(false)}
+          >
+            Admin
+          </Link>
           <button
             onClick={() => scrollToSection("application-form")}
             className="w-full text-center bg-brand-green text-white py-3 rounded-xl font-bold hover:bg-green-600 transition-colors"
