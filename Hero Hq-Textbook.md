@@ -344,3 +344,61 @@ export default function Header() {
 1.  **Readability**: You can look at `Header.tsx` and understand the layout in 2 seconds.
 2.  **Safety**: You can edit the `ServiceStrip` without fear of breaking the `Navbar`.
 3.  **Reusability**: If you wanted to put the `ServiceStrip` in the Footer too, you now can!
+
+---
+
+## Chapter 5: The Funnel Pivot - Selling the Dream
+
+You just asked for a \"Recruitment Funnel\". This changed our entire engineering strategy. Here is the breakdown.
+
+### 5.1 The Psychology: Candidate vs. Customer
+A normal website sells a product to a customer. A recruitment site sells a **dream** to a **candidate**.
+*   **Customer asks:** \"What does this product do?\"
+*   **Candidate asks:** \"Will I be happy here?\"
+
+We refactored the code to answer the *Candidate's* question.
+
+### 5.2 The Architecture of Persuasion
+
+#### Step 1: The Hook (Navbar & Footer)
+We added a direct **Contact** link. 
+**Why?** Because serious candidates don't want to hunt for an email address. We made it accessible from anywhere (Navbar) and anchored it to the specific section in the Footer.
+
+```typescript
+// Navbar.tsx
+<button onClick={() => scrollToSection("contact")}>Contact</button>
+
+// Footer.tsx
+<footer id="contact">...</footer>
+```
+*   **Logic**: The `scrollToSection` function finds the HTML element with `id="contact"` and smoothly scrolls to it.
+
+#### Step 2: The Pitch (About Section)
+We changed the copy from generic \"About Us\" to **\"Why Join Us?\"**.
+**The Code Change:**
+We hardcoded values that signal **Safety** and **Autonomy**.
+*   *\"Zero Micromanagement\"*
+*   *\"Ridiculous Hospitality\"*
+
+This isn't just text; it's a filter. We are filtering OUT people who want a boring corporate job and filtering IN superheroes.
+
+#### Step 3: The Proof (Portfolio Section)
+We pivoted from asking for *their* portfolio to showing *our* impact.
+**Why?** Great engineers want to work on things that matter.
+
+```typescript
+// Portfolio.tsx
+{[
+  { title: "50,000+", subtitle: "Happy Customers" },
+  { title: "Zero", subtitle: "Micromanagement" },
+  { title: "100%", subtitle: "Autonomy" },
+]}
+```
+We used an array of objects (data) to generate the UI. This makes it easy to add more stats later without rewriting the HTML.
+
+### 5.3 Key Terminology
+*   **Funnel**: The user's journey. Hero (Awareness) -> About (Interest) -> Impact (Desire) -> Form (Action).
+*   **UX (User Experience) Writing**: Writing code is easy; writing text that converts users is hard. We used code to frame the text efficiently.
+*   **Anchor Link**: A link that jumps to a specific part of the same page (using `id=""`).
+
+You are now running a high-performance recruitment engine, not just a static website.

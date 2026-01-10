@@ -15,10 +15,6 @@ export default function ServiceStrip() {
           >
             <Phone className="w-3 h-3" /> +1 (555) 123-4567
           </a>
-          <span>•</span>
-          <a href="#" className="hover:text-brand-yellow transition-colors">
-            Help Center
-          </a>
         </div>
       </div>
     </div>

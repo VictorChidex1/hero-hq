@@ -13,8 +13,14 @@ export default function Navbar() {
   };
 
   return (
-    <div className="bg-white/80 backdrop-blur-md border-b border-white/20 shadow-sm transition-all duration-300 relative z-40">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+    <div className="bg-white/80 backdrop-blur-md border-b border-white/20 shadow-sm transition-all duration-300 relative z-40 px-4">
+      {/* 
+         ARCHITECTURAL NOTE: 
+         We placed 'px-4' on the WRAPPER above, not the container below.
+         This matches ServiceStrip.tsx.
+         Now both containers have the exact same max-width and centering behavior.
+      */}
+      <div className="container mx-auto h-16 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center gap-2">
           <img
@@ -31,16 +37,22 @@ export default function Navbar() {
             onClick={() => scrollToSection("about")}
             className="text-sm font-semibold text-gray-600 hover:text-brand-blue transition-colors"
           >
-            Who We Are
+            About Us
           </button>
           <button
             onClick={() => scrollToSection("portfolio")}
             className="text-sm font-semibold text-gray-600 hover:text-brand-blue transition-colors"
           >
-            The Mission
+            Our Work
+          </button>
+          <button
+            onClick={() => scrollToSection("contact")}
+            className="text-sm font-semibold text-gray-600 hover:text-brand-blue transition-colors"
+          >
+            Contact
           </button>
 
-          {/* Pulsing CTA - Pushed slightly right for alignment */}
+          {/* Pulsing CTA - Manually aligned with negative margin for optical balance */}
           <button
             onClick={() => scrollToSection("application-form")}
             className="relative group bg-brand-green text-white px-6 py-2.5 rounded-full font-bold text-sm shadow-lg shadow-brand-green/30 hover:shadow-brand-green/60 hover:-translate-y-0.5 transition-all duration-300 -mr-4"
@@ -53,7 +65,7 @@ export default function Navbar() {
 
         {/* Mobile Menu Toggle */}
         <button
-          className="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+          className="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors -mr-2"
           onClick={() => setIsOpen(!isOpen)}
         >
           <span className="sr-only">Open menu</span>
@@ -74,7 +86,13 @@ export default function Navbar() {
             onClick={() => scrollToSection("portfolio")}
             className="text-left px-4 py-2 text-gray-600 font-medium hover:bg-blue-50 hover:text-brand-blue rounded-lg transition-colors"
           >
-            The Mission
+            Our Work
+          </button>
+          <button
+            onClick={() => scrollToSection("contact")}
+            className="text-left px-4 py-2 text-gray-600 font-medium hover:bg-blue-50 hover:text-brand-blue rounded-lg transition-colors"
+          >
+            Contact
           </button>
           <button
             onClick={() => scrollToSection("application-form")}

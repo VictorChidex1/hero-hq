@@ -4,31 +4,40 @@ export default function About() {
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
-            <div className="inline-block px-4 py-1 rounded-full bg-blue-100 text-brand-blue text-sm font-bold mb-6">
-              WHO WE ARE
+            <div className="inline-block px-4 py-1 rounded-full bg-brand-green/10 text-brand-green text-sm font-bold mb-6">
+              THE CULTURE CHECK
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-tight">
-              We Believe in{" "}
-              <span className="text-brand-blue">Ridiculous Hospitality</span>.
+              Founded at 19. <br />
+              <span className="text-brand-blue">Built by a Brotherhood.</span>
             </h2>
             <p className="text-lg text-gray-600 mb-6 leading-relaxed">
-              At The CanMan, we don't just solve problems; we save the day. Our
-              mission is to provide service so good it feels like a superpower.
+              <strong>Cade Schultz</strong> didn't start The CanMan in a
+              boardroom. He started it at 19 years old in Rockwall, Texas, with
+              a simple obsession: <em>leave everyone smiling.</em>
             </p>
-            <p className="text-lg text-gray-600 leading-relaxed">
-              We move fast, we care deeply, and we always show up. If that
-              sounds like your kind of team, you're in the right place.
+            <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+              We aren't a boring corporate machine. We are a tribe of problem
+              solvers who believe in <strong>Ridiculous Hospitality</strong>. We
+              work hard, we treat people right, and we have each other's backs.
+            </p>
+            <p className="text-lg text-gray-600 leading-relaxed font-medium">
+              If you want a badge number, go elsewhere. If you want a
+              brotherhood, welcome home.
             </p>
           </div>
           <div className="relative">
             {/* Image Placeholder */}
-            <div className="aspect-square bg-gray-200 rounded-2xl overflow-hidden shadow-xl">
-              <div className="w-full h-full bg-gradient-to-br from-brand-blue to-blue-400 opacity-20 flex items-center justify-center text-brand-blue font-bold text-2xl">
-                Team Photo
+            <div className="aspect-square bg-white rounded-2xl overflow-hidden shadow-xl border-4 border-white transform rotate-3 hover:rotate-0 transition-all duration-500">
+              <div className="w-full h-full bg-brand-blue flex items-center justify-center text-white font-bold text-2xl p-8 text-center bg-[url('/images/hero-image.webp')] bg-cover bg-center">
+                {/* Visual fallback if image fails or for overlay effect */}
+                <div className="bg-brand-blue/80 w-full h-full flex items-center justify-center backdrop-blur-sm">
+                  Cade & The Team
+                </div>
               </div>
             </div>
             {/* Decorative Element */}
-            <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-brand-yellow rounded-full z-[-1] opacity-50"></div>
+            <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-brand-yellow rounded-full z-[-1] opacity-50 blur-xl"></div>
           </div>
         </div>
       </div>

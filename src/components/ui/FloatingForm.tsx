@@ -85,7 +85,7 @@ export default function FloatingForm() {
   };
 
   return (
-    <div className="relative max-w-2xl mx-auto px-4">
+    <div id="application-form" className="relative max-w-2xl mx-auto px-4">
       {/* THE NEGATIVE MARGIN - Pulls card up into the Blue Hero */}
       <div className="-mt-24 bg-white rounded-2xl shadow-float p-8 md:p-10 relative z-10">
         <div className="text-center mb-8">
