@@ -1,0 +1,30 @@
+/* 1. Import the Font (Inter) from Google Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+/* 2. Inject Tailwind Directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 3. Global Reset & Base Styles */
+@layer base {
+  html {
+    font-family: "Inter", sans-serif;
+    scroll-behavior: smooth; /* Makes anchor links slide nicely */
+  }
+
+  body {
+    @apply bg-white text-brand-dark antialiased;
+  }
+
+  /* Optional: Custom Scrollbar to match the Brand Blue */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-brand-blue/50 rounded-full hover:bg-brand-blue;
+  }
+}
