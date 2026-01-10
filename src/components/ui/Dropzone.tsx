@@ -9,19 +9,21 @@ import {
 import type { UploadStatus } from "../../hooks/useUpload";
 import { toast } from "sonner";
 
-interface DropzoneProps {
-  onFileSelect: (file: File) => void;
-  status: UploadStatus;
-  fileName: string | null;
-  progress: number;
-}
+// Interface removed to fix TS6196
 
 export default function Dropzone({
   onFileSelect,
   status,
   fileName,
   progress,
-}: DropzoneProps) {
+  selectedFile, // <--- NEW PROP
+}: {
+  onFileSelect: (file: File) => void;
+  status: UploadStatus;
+  fileName: string | null;
+  progress: number;
+  selectedFile?: File | null;
+}) {
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       if (acceptedFiles?.length > 0) {
@@ -60,7 +62,9 @@ export default function Dropzone({
             <FileText className="w-8 h-8 text-brand-green" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm text-gray-500 font-medium">Ready to upload</p>
+            <p className="text-sm text-gray-500 font-medium">
+              Uploaded Successfully
+            </p>
             <p className="text-brand-dark font-bold truncate">{fileName}</p>
           </div>
           <div className="text-green-500">
@@ -68,6 +72,35 @@ export default function Dropzone({
           </div>
         </div>
         <div className="absolute top-0 right-0 w-16 h-16 bg-green-500 rotate-45 transform translate-x-8 -translate-y-8"></div>
+      </div>
+    );
+  }
+
+  // State B.5: FILE SELECTED (Waiting for Submit)
+  if (selectedFile && status === "IDLE") {
+    return (
+      <div className="border border-brand-blue bg-blue-50 rounded-xl p-6 relative overflow-hidden">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-white rounded-full shadow-sm">
+            <FileText className="w-8 h-8 text-brand-blue" />
+          </div>
+          <div className="flex-1 min-w-0 text-left">
+            <p className="text-sm text-brand-blue font-medium">
+              Ready to submit
+            </p>
+            <p className="text-brand-dark font-bold truncate">
+              {selectedFile.name}
+            </p>
+          </div>
+          {/* Change File Button */}
+          <button
+            type="button"
+            onClick={getRootProps().onClick}
+            className="text-xs font-semibold text-gray-500 hover:text-brand-blue underline"
+          >
+            Change
+          </button>
+        </div>
       </div>
     );
   }
