@@ -40,19 +40,30 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchApplicants = async () => {
       try {
-        const q = query(
-          collection(db, "applicants"),
-          orderBy("createdAt", "desc")
-        );
+        // FIX: We removed 'orderBy' to avoid "Missing Index" errors on new projects.
+        // We will sort the data in JavaScript instead (Client-Side Sorting).
+        const q = query(collection(db, "applicants"));
+
         const querySnapshot = await getDocs(q);
+
         const apps = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         })) as Applicant[];
+
+        // Client-Side Sort: Newest first
+        // We use the seconds timestamp from Firebase
+        apps.sort((a, b) => {
+          const timeA = a.createdAt?.seconds || 0;
+          const timeB = b.createdAt?.seconds || 0;
+          return timeB - timeA;
+        });
+
         setApplicants(apps);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error fetching documents: ", error);
-        toast.error("Failed to load applicants.");
+        // Display the ACTUAL error message so we know if it's Permissions vs Network
+        toast.error(`Failed to load: ${error.message}`);
       } finally {
         setLoading(false);
       }

@@ -3,15 +3,32 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
+
     // Safety Net: Deny everything by default
     match /{document=**} {
       allow read, write: if false;
     }
 
+    // Users Collection (The Role Directory)
+    match /users/{userId} {
+      // Users can read/write their own profile
+      // Admins can read anyone's profile
+      allow read, write: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+    }
+
     // Applicants Collection (Linked to Floating Form)
     match /applicants/{applicantId} {
-      // 1. Admin Access: Authenticated users can READ and UPDATE
-      allow read, update: if request.auth != null;
+      // 1. Admin Access: Only Admins can READ and UPDATE
+      allow read, update: if isAdmin();
 
       // 2. Public Access: Anyone can CREATE (if valid)
       allow create: if isValidApplication();

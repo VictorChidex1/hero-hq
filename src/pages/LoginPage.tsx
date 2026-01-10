@@ -8,6 +8,8 @@ import { auth } from "../lib/firebase";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "sonner";
 import { Lock, Mail, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { setDoc, doc } from "firebase/firestore";
+import { db } from "../lib/firebase";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -35,7 +37,17 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+
+      // Ensure user document exists (safe merge)
+      await setDoc(
+        doc(db, "users", result.user.uid),
+        {
+          email: result.user.email,
+        },
+        { merge: true }
+      );
+
       toast.success("Welcome, Commander.");
       navigate("/admin");
     } catch (error) {

@@ -8,6 +8,8 @@ import { auth } from "../lib/firebase";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "sonner";
 import { Lock, Mail, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { setDoc, doc, serverTimestamp } from "firebase/firestore";
+import { db } from "../lib/firebase";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
@@ -29,7 +31,18 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      // Create user document
+      await setDoc(doc(db, "users", userCredential.user.uid), {
+        email: email,
+        role: "user", // Default role
+        createdAt: serverTimestamp(),
+      });
+
       toast.success("Account created! Welcome to the team.");
       navigate("/admin");
     } catch (error: any) {
@@ -47,7 +60,22 @@ export default function SignupPage() {
   const handleGoogleSignup = async () => {
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+
+      // Create/Merge user document (in case they already exist, we don't want to overwrite role)
+      await setDoc(
+        doc(db, "users", result.user.uid),
+        {
+          email: result.user.email,
+          // We use merge: true so we don't overwrite an existing 'admin' role if they log in again
+        },
+        { merge: true }
+      );
+
+      // If it's a new user, 'role' might be missing. We can set a default if needed,
+      // but usually we manually promote admins in the console anyway.
+      // Ideally, check existence, but for now merge is safe.
+
       toast.success("Welcome aboard!");
       navigate("/admin");
     } catch (error) {
