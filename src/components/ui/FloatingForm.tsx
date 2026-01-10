@@ -108,7 +108,7 @@ export default function FloatingForm() {
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 outline-none transition-all"
-                placeholder="Victor Chidera"
+                placeholder="John Doe"
               />
             </div>
             <div className="space-y-2">
@@ -122,7 +122,7 @@ export default function FloatingForm() {
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 outline-none transition-all"
-                placeholder="victor@example.com"
+                placeholder="john@example.com"
               />
             </div>
           </div>
@@ -137,7 +137,7 @@ export default function FloatingForm() {
               value={formData.phone}
               onChange={handleChange}
               className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 outline-none transition-all"
-              placeholder="+234 ..."
+              placeholder="+1 555 ..."
             />
           </div>
 

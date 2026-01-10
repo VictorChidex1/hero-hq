@@ -156,14 +156,16 @@ This architecture ensures your app feels fast (optimistic UI), looks professiona
 While Firebase Storage is powerful, we pivoted to **Cloudinary** for easier asset management and progress tracking. This required a fundamental change in our `useUpload` hook.
 
 ### 2.1 Why the Change?
+
 1.  **Direct Uploads**: Cloudinary provides a simple "Unsigned Preset" allowing strictly client-side uploads without complex authentication headers.
 2.  **Asset Management**: We can organize PDFs into folders (`resumes/`) automatically.
 
 ### 2.2 The New Logic (XMLHttpRequest)
+
 We replaced the Firebase SDK methods with a native browser API: `XMLHttpRequest`.
 
 **Why not `fetch`?**
-The modern `fetch` API does not natively support "upload progress" events. If we want to show a progress bar (e.g., "50% uploaded"), we *must* use the older but more capable `XMLHttpRequest`.
+The modern `fetch` API does not natively support "upload progress" events. If we want to show a progress bar (e.g., "50% uploaded"), we _must_ use the older but more capable `XMLHttpRequest`.
 
 ### 2.3 Revised Code Breakdown
 
@@ -183,7 +185,7 @@ xhr.upload.onprogress = (event) => {
   if (event.lengthComputable) {
     // Calculate the percentage
     const p = (event.loaded / event.total) * 100;
-    setProgress(Math.round(p)); 
+    setProgress(Math.round(p));
   }
 };
 
@@ -192,7 +194,7 @@ xhr.onload = () => {
   if (xhr.status === 200) {
     const response = JSON.parse(xhr.responseText);
     // Cloudinary returns the secure URL
-    resolve(response.secure_url); 
+    resolve(response.secure_url);
   }
 };
 ```
@@ -203,47 +205,51 @@ This evolution demonstrates how to adapt your backend strategy (Firebase vs. Clo
 
 ## Chapter 3: The Linkage - Parent & Child
 
-You asked: *\"How do these two components talk to each other?\"* 
+You asked: _\"How do these two components talk to each other?\"_
 
 Think of **FloatingForm** as the **Parent** and **Dropzone** as the **Child**.
 
 ### 3.1 The One-Way Rule
+
 In React, information flows in **one direction**: Down.
-*   The Parent holds the **State** (The Truth).
-*   The Child acts as the **Display** (The TV Screen).
+
+- The Parent holds the **State** (The Truth).
+- The Child acts as the **Display** (The TV Screen).
 
 ### 3.2 The Handshake (Props vs. Callbacks)
 
 #### 1. Data Flows Down (Props)
-The Parent () says: *\"Here is the file the user picked. Show it.\"*
-It passes  down to the Child.
+
+The Parent () says: _\"Here is the file the user picked. Show it.\"_
+It passes down to the Child.
 
 ```typescript
 // FloatingForm.tsx (The Parent)
-<Dropzone 
+<Dropzone
   selectedFile={selectedFile} // <--- Passing the data down
 />
 ```
 
-The Child () receives it and says: *\"Okay, I see a file. I will switch my UI to the Blue Card.\"*
+The Child () receives it and says: _\"Okay, I see a file. I will switch my UI to the Blue Card.\"_
 
 ```typescript
 // Dropzone.tsx (The Child)
 if (selectedFile) {
-   return <div className="bg-blue-50">...</div> // <--- Reacting to data
+  return <div className="bg-blue-50">...</div>; // <--- Reacting to data
 }
 ```
 
 #### 2. Events Flow Up (Callbacks)
+
 The Child cannot change the Parent's data directly. It has to "call home."
 When you drop a file, the Child rings the doorbell ().
 
 ```typescript
 // Dropzone.tsx (The Child)
 const onDrop = (files) => {
-   // "Hey Parent! Someone dropped a file!"
-   onFileSelect(files[0]); 
-}
+  // "Hey Parent! Someone dropped a file!"
+  onFileSelect(files[0]);
+};
 ```
 
 The Parent answers the phone and updates its own state:
@@ -251,15 +257,17 @@ The Parent answers the phone and updates its own state:
 ```typescript
 // FloatingForm.tsx (The Parent)
 const handleFileSelect = (file) => {
-   // "Thanks! I'll hold onto this."
-   setSelectedFile(file); 
-}
+  // "Thanks! I'll hold onto this."
+  setSelectedFile(file);
+};
 ```
 
 ### 3.3 Why do it this way?
+
 Why not let Dropzone hold the file itself?
 **Control.**
 By keeping the file in the Parent (), the Parent can:
+
 1.  Check the file before uploading.
 2.  Send the file ONLY when the "Submit" button is clicked.
 3.  Clear the file if the form is reset.
@@ -273,7 +281,9 @@ If the Child held the file, the Parent wouldn't know about it until it was too l
 We just performed a major architectural refactor on the `Header` component. Here is exactly what we did and why.
 
 ### 4.1 The Problem: "The God Component"
+
 Initially, our `Header.tsx` was doing too much:
+
 1.  It held the "Hiring Heroes" banner.
 2.  It managed the contact phone number.
 3.  It rendered the Logo.
@@ -284,16 +294,19 @@ Initially, our `Header.tsx` was doing too much:
 In software engineering, this violates the **Single Responsibility Principle (SRP)**. If we wanted to change the phone number, we risked breaking the Navigation layout.
 
 ### 4.2 The Solution: Composition
+
 We broke the `Header` down into two specialized components and composed them back together.
 
 **The Terminologies:**
-*   **Composition**: Building complex UIs by combining smaller, simpler components. Like building a Lego castle out of small bricks.
-*   **Container Component**: A component (like `Header`) that simply holds other components and lays them out.
-*   **Presentational Component**: A component (like `ServiceStrip`) that just shows data and doesn't have complex logic.
+
+- **Composition**: Building complex UIs by combining smaller, simpler components. Like building a Lego castle out of small bricks.
+- **Container Component**: A component (like `Header`) that simply holds other components and lays them out.
+- **Presentational Component**: A component (like `ServiceStrip`) that just shows data and doesn't have complex logic.
 
 ### 4.3 The Code Breakdown
 
 #### 1. The `ServiceStrip` (Top Bar)
+
 This component has ONE job: Show the urgent contact info.
 
 ```typescript
@@ -301,13 +314,14 @@ This component has ONE job: Show the urgent contact info.
 export default function ServiceStrip() {
   return (
     <div className="bg-brand-blue...">
-       {/* ... Phone Number & Hiring Message ... */}
+      {/* ... Phone Number & Hiring Message ... */}
     </div>
   );
 }
 ```
 
 #### 2. The `Navbar` (Main Navigation)
+
 This component handles the complex interactions.
 
 ```typescript
@@ -315,14 +329,15 @@ This component handles the complex interactions.
 export default function Navbar() {
   // Logic identifying it's responsible for navigation
   return (
-    <div className="backdrop-blur-md..."> 
-       {/* ... Logo, Links, & Pulsing Button ... */}
+    <div className="backdrop-blur-md...">
+      {/* ... Logo, Links, & Pulsing Button ... */}
     </div>
   );
 }
 ```
 
 #### 3. The `Header` (The Container)
+
 The `Header` became incredibly simple. It just stacks the bricks.
 
 ```typescript
@@ -334,13 +349,14 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50">
       <ServiceStrip /> {/* Brick 1 */}
-      <Navbar />       {/* Brick 2 */}
+      <Navbar /> {/* Brick 2 */}
     </header>
   );
 }
 ```
 
 ### 4.4 Why this matters for a "Newbie"
+
 1.  **Readability**: You can look at `Header.tsx` and understand the layout in 2 seconds.
 2.  **Safety**: You can edit the `ServiceStrip` without fear of breaking the `Navbar`.
 3.  **Reusability**: If you wanted to put the `ServiceStrip` in the Footer too, you now can!
@@ -352,16 +368,19 @@ export default function Header() {
 You just asked for a \"Recruitment Funnel\". This changed our entire engineering strategy. Here is the breakdown.
 
 ### 5.1 The Psychology: Candidate vs. Customer
-A normal website sells a product to a customer. A recruitment site sells a **dream** to a **candidate**.
-*   **Customer asks:** \"What does this product do?\"
-*   **Candidate asks:** \"Will I be happy here?\"
 
-We refactored the code to answer the *Candidate's* question.
+A normal website sells a product to a customer. A recruitment site sells a **dream** to a **candidate**.
+
+- **Customer asks:** \"What does this product do?\"
+- **Candidate asks:** \"Will I be happy here?\"
+
+We refactored the code to answer the _Candidate's_ question.
 
 ### 5.2 The Architecture of Persuasion
 
 #### Step 1: The Hook (Navbar & Footer)
-We added a direct **Contact** link. 
+
+We added a direct **Contact** link.
 **Why?** Because serious candidates don't want to hunt for an email address. We made it accessible from anywhere (Navbar) and anchored it to the specific section in the Footer.
 
 ```typescript
@@ -371,34 +390,117 @@ We added a direct **Contact** link.
 // Footer.tsx
 <footer id="contact">...</footer>
 ```
-*   **Logic**: The `scrollToSection` function finds the HTML element with `id="contact"` and smoothly scrolls to it.
+
+- **Logic**: The `scrollToSection` function finds the HTML element with `id="contact"` and smoothly scrolls to it.
 
 #### Step 2: The Pitch (About Section)
+
 We changed the copy from generic \"About Us\" to **\"Why Join Us?\"**.
 **The Code Change:**
 We hardcoded values that signal **Safety** and **Autonomy**.
-*   *\"Zero Micromanagement\"*
-*   *\"Ridiculous Hospitality\"*
+
+- _\"Zero Micromanagement\"_
+- _\"Ridiculous Hospitality\"_
 
 This isn't just text; it's a filter. We are filtering OUT people who want a boring corporate job and filtering IN superheroes.
 
 #### Step 3: The Proof (Portfolio Section)
-We pivoted from asking for *their* portfolio to showing *our* impact.
+
+We pivoted from asking for _their_ portfolio to showing _our_ impact.
 **Why?** Great engineers want to work on things that matter.
 
 ```typescript
 // Portfolio.tsx
-{[
-  { title: "50,000+", subtitle: "Happy Customers" },
-  { title: "Zero", subtitle: "Micromanagement" },
-  { title: "100%", subtitle: "Autonomy" },
-]}
+{
+  [
+    { title: "50,000+", subtitle: "Happy Customers" },
+    { title: "Zero", subtitle: "Micromanagement" },
+    { title: "100%", subtitle: "Autonomy" },
+  ];
+}
 ```
+
 We used an array of objects (data) to generate the UI. This makes it easy to add more stats later without rewriting the HTML.
 
 ### 5.3 Key Terminology
-*   **Funnel**: The user's journey. Hero (Awareness) -> About (Interest) -> Impact (Desire) -> Form (Action).
-*   **UX (User Experience) Writing**: Writing code is easy; writing text that converts users is hard. We used code to frame the text efficiently.
-*   **Anchor Link**: A link that jumps to a specific part of the same page (using `id=""`).
+
+- **Funnel**: The user's journey. Hero (Awareness) -> About (Interest) -> Impact (Desire) -> Form (Action).
+- **UX (User Experience) Writing**: Writing code is easy; writing text that converts users is hard. We used code to frame the text efficiently.
+- **Anchor Link**: A link that jumps to a specific part of the same page (using `id=""`).
 
 You are now running a high-performance recruitment engine, not just a static website.
+
+---
+
+## Chapter 6: The Invisible Box Problem - Debugging Layout Overflow
+
+You just encountered a classic "white gap" bug on mobile. Here is the deep dive into what happened, why it broke, and how we fixed it.
+
+### 6.1 The Problem: "Horizontal Overflow"
+
+**The Symptoms:**
+On your phone, you could swipe left and right. There was a weird white gap on the right side of the screen. The header and hero didn't stretch all the way to the edge.
+
+**The Diagnosis:**
+The **Viewport** (the visible screen area) was narrower than the **Content Width**.
+Somewhere on your site, _something_ was pushing closer to the right edge than the phone screen allowed, forcing the browser to "zoom out" or enable scrolling to show it.
+
+### 6.2 The Culprit: Absolute Positioning
+
+We found the villain in `About.tsx`.
+
+```typescript
+{
+  /* Decorative Element */
+}
+<div className="absolute -bottom-6 -right-6 w-24 h-24 bg-brand-yellow..." />;
+```
+
+**Terminologies:**
+
+- **The Box Model**: Every element in web design is a box (Margin + Border + Padding + Content).
+- **Absolute Positioning**: This tells an element to ignore the normal flow of the page and sit at exact coordinates.
+- **Negative Positioning (`-right-6`)**: This moves the element 24 pixels (6 * 4) to the *right\* of its parent's right edge.
+
+**The Logic Flaw:**
+
+1.  The parent container was effectively 100% of the screen width.
+2.  The yellow blob was told to sit 24px _outside_ that container.
+3.  Result: Total Width = 100% + 24px.
+4.  Since 100% + 24px > 100%, the browser added a horizontal scrollbar to show that extra 24px.
+
+### 6.3 The Fix: Clipping the Box
+
+We implemented two fixes: a **Local Fix** and a **Global Safety Net**.
+
+#### Fix 1: The Local Fix (Clipping)
+
+We added `overflow-hidden` to the _parent_ section in `About.tsx`.
+
+```typescript
+// About.tsx
+<section className="... overflow-hidden">
+  {/* ... content ... */}
+  <div className="absolute -right-6 ..." />
+</section>
+```
+
+**Logic**: `overflow-hidden` tells the parent: _"If any of your children try to step outside your box, CUT THEM OFF."_
+Instead of expanding the page width, the browser now simply slices off the part of the yellow blob that sticks out.
+
+#### Fix 2: The Global Safety Net
+
+We added `overflow-x-hidden` to the main `Layout.tsx` wrapper.
+
+```typescript
+// Layout.tsx
+<div className="flex flex-col min-h-screen overflow-x-hidden">
+```
+
+**Logic**: This is an insurance policy. It tells the entire browser window: _"Never, under any circumstances, allow horizontal scrolling. If something is too wide, hide it."_
+
+### 6.4 Key Takeaways
+
+1.  **Phone screens are unforgiving**: A single pixel outside the 100% width causing 'wiggle'.
+2.  **Decorative Blobs are dangerous**: Always wrap absolute positioned decorations in a container with `overflow-hidden`.
+3.  **Debug Strategy**: When you see a white gap, look for "Negative Margins" or "Negative Absolute Positions" (`-right-`, `-mr-`).
