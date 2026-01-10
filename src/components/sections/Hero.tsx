@@ -7,12 +7,17 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative bg-brand-blue text-white pt-24 pb-32 md:pt-32 md:pb-48 overflow-hidden">
-      {/* Background Texture/Pattern Placeholder */}
-      <div className="absolute inset-0 opacity-10 bg-[url('/grid-pattern.svg')]"></div>
+    <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
+      {/* Background Image with Overlay */}
+      <div className="absolute inset-0 z-0">
+        {/* The Brand Overlay - Ensures text readability */}
+        <div className="absolute inset-0 bg-brand-blue/90 z-10"></div>
+        {/* The Hero Image */}
+        <div className="absolute inset-0 bg-[url('/images/hero-image.webp')] bg-cover bg-center"></div>
+      </div>
 
       <div className="container mx-auto px-4 relative z-10 text-center">
-        <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">
+        <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight text-white">
           Join Our Creative Team!
         </h1>
         <p className="text-xl md:text-2xl text-blue-100 mb-10 max-w-2xl mx-auto font-light">
