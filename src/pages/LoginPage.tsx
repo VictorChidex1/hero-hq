@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Lock, Mail, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { setDoc, doc } from "firebase/firestore";
 import { db } from "../lib/firebase";
+import SEO from "../components/seo/SEO";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -58,6 +59,10 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-brand-dark flex flex-col p-4 relative">
+      <SEO
+        title="Login | Hero HQ"
+        description="Secure access for Hero HQ administrators."
+      />
       <Link
         to="/"
         className="absolute top-4 left-4 text-white hover:text-brand-blue transition-colors flex items-center gap-2"

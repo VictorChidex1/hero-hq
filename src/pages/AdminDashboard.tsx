@@ -1,11 +1,6 @@
 import { useEffect, useState } from "react";
-import {
-  collection,
-  query,
-  orderBy,
-  getDocs,
-  Timestamp,
-} from "firebase/firestore";
+import SEO from "../components/seo/SEO";
+import { collection, query, getDocs, Timestamp } from "firebase/firestore";
 import { db, auth } from "../lib/firebase";
 import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
@@ -79,6 +74,11 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
+      <SEO
+        title="Mission Control | Hero HQ"
+        description="Admin dashboard for managing applications."
+      />
+
       {/* Top Bar */}
       <nav className="bg-white shadow-sm border-b px-6 py-4 flex justify-between items-center sticky top-0 z-30">
         <div className="flex items-center gap-2">

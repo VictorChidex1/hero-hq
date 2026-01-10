@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { Lock, Mail, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { setDoc, doc, serverTimestamp } from "firebase/firestore";
 import { db } from "../lib/firebase";
+import SEO from "../components/seo/SEO";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
@@ -86,6 +87,10 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen bg-brand-dark flex flex-col p-4 relative">
+      <SEO
+        title="Join the Force | Hero HQ"
+        description="Create an admin account for Hero HQ."
+      />
       <Link
         to="/"
         className="absolute top-4 left-4 text-white hover:text-brand-green transition-colors flex items-center gap-2"
