@@ -87,7 +87,7 @@ export default function FloatingForm() {
   return (
     <div id="application-form" className="relative max-w-2xl mx-auto px-4">
       {/* THE NEGATIVE MARGIN - Pulls card up into the Blue Hero */}
-      <div className="-mt-24 bg-white rounded-2xl shadow-float p-8 md:p-10 relative z-10">
+      <div className="-mt-16 md:-mt-24 bg-white rounded-2xl shadow-float p-6 md:p-10 relative z-10">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Apply Now</h2>
           <p className="text-gray-500">

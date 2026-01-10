@@ -1,9 +1,9 @@
 export default function About() {
   return (
-    <section id="about" className="py-20 bg-gray-50">
+    <section id="about" className="py-16 md:py-20 bg-gray-50">
       <div className="container mx-auto px-4">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div>
+        <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+          <div className="text-center md:text-left">
             <div className="inline-block px-4 py-1 rounded-full bg-brand-green/10 text-brand-green text-sm font-bold mb-6">
               THE CULTURE CHECK
             </div>
