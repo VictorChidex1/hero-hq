@@ -1,10 +1,11 @@
-export default function Navbar() {
-  const scrollToSection = (id: string) => {
-    // If it's the "apply" action, we might want to focus the form
-    if (id === "apply") {
-      // Logic to focus specific input could go here
-    }
+import { useState } from "react";
+import { Menu, X } from "lucide-react";
 
+export default function Navbar() {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const scrollToSection = (id: string) => {
+    setIsOpen(false); // Close menu on click
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
@@ -24,25 +25,25 @@ export default function Navbar() {
           />
         </div>
 
-        {/* Navigation */}
+        {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-8">
           <button
             onClick={() => scrollToSection("about")}
             className="text-sm font-semibold text-gray-600 hover:text-brand-blue transition-colors"
           >
-            About
+            Who We Are
           </button>
           <button
             onClick={() => scrollToSection("portfolio")}
             className="text-sm font-semibold text-gray-600 hover:text-brand-blue transition-colors"
           >
-            Contact
+            The Mission
           </button>
 
-          {/* Pulsing CTA */}
+          {/* Pulsing CTA - Pushed slightly right for alignment */}
           <button
             onClick={() => scrollToSection("application-form")}
-            className="relative group bg-brand-green text-white px-6 py-2.5 rounded-full font-bold text-sm shadow-lg shadow-brand-green/30 hover:shadow-brand-green/60 hover:-translate-y-0.5 transition-all duration-300"
+            className="relative group bg-brand-green text-white px-6 py-2.5 rounded-full font-bold text-sm shadow-lg shadow-brand-green/30 hover:shadow-brand-green/60 hover:-translate-y-0.5 transition-all duration-300 -mr-4"
           >
             {/* Pulsing Ring Effect */}
             <span className="absolute -inset-1 rounded-full bg-brand-green/20 animate-pulse group-hover:bg-brand-green/30 transition-all"></span>
@@ -50,24 +51,39 @@ export default function Navbar() {
           </button>
         </nav>
 
-        {/* Mobile Menu Button Placeholder */}
-        <button className="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+        {/* Mobile Menu Toggle */}
+        <button
+          className="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+          onClick={() => setIsOpen(!isOpen)}
+        >
           <span className="sr-only">Open menu</span>
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 6h16M4 12h16M4 18h16"
-            />
-          </svg>
+          {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
+
+      {/* Mobile Menu Overlay */}
+      {isOpen && (
+        <div className="md:hidden absolute top-16 left-0 w-full bg-white border-b border-gray-100 shadow-xl p-4 flex flex-col gap-4 animate-in slide-in-from-top-2">
+          <button
+            onClick={() => scrollToSection("about")}
+            className="text-left px-4 py-2 text-gray-600 font-medium hover:bg-blue-50 hover:text-brand-blue rounded-lg transition-colors"
+          >
+            Who We Are
+          </button>
+          <button
+            onClick={() => scrollToSection("portfolio")}
+            className="text-left px-4 py-2 text-gray-600 font-medium hover:bg-blue-50 hover:text-brand-blue rounded-lg transition-colors"
+          >
+            The Mission
+          </button>
+          <button
+            onClick={() => scrollToSection("application-form")}
+            className="w-full text-center bg-brand-green text-white py-3 rounded-xl font-bold hover:bg-green-600 transition-colors"
+          >
+            Apply Now
+          </button>
+        </div>
+      )}
     </div>
   );
 }
