@@ -1098,3 +1098,44 @@ We went purely **Defensive**:
 2.  **Explicit Instruction**: We gave the browser a `manifest.json` with strict orders on which icon to use.
 
 Now, even the most stubborn mobile cache will eventually be forced to update to The Can Man logo. 📱
+
+### 13.5 The Nuclear Option: Cache Busting
+
+Sometimes, even after deleting the old file, the browser (especially on mobile) refuses to let go of the old memory.
+To fix this, we implemented **Cache Busting** in `index.html` and **Headers** in `firebase.json`.
+
+**1. The Query String Trick**
+We changed this:
+
+```html
+<link rel="icon" href="/images/thecanman-logo.png" />
+```
+
+To this:
+
+```html
+<link rel="icon" href="/images/thecanman-logo.png?v=2" />
+```
+
+**Logic**: The browser sees `?v=2` and thinks, "Oh, this is a _different_ file!" and fetches the new image immediately.
+
+**2. The Firebase Headers**
+We told Firebase Hosting to serve `index.html` with `Cache-Control: no-cache`.
+**Logic**: "Never save the `index.html` file. Always ask the server for the latest version."
+
+This ensures that whenever you deploy, your users see the changes **instantly**. 🚀
+
+### 13.6 The Final Frontier: Asset Fingerprinting
+
+In extreme cases (like yours), where the URL itself (`.../thecanman-logo.png`) is permanently cached by a stubborn ISP or device, we use **Asset Fingerprinting**.
+
+**The Logic:**
+Instead of fighting the cache for `logo.png`, we simply **rename the file**.
+
+1.  **Old**: `/images/thecanman-logo.png` (Dead to us)
+2.  **New**: `/images/hero-icon.png` (Fresh and clean)
+
+By changing the filename, we force the browser to treating it as a completely new resource. It has no choice but to download it.
+
+**Why this works:**
+Cache is based on the **URL**. Change the URL, escape the cache. Simple as that. 🕵️‍♂️
