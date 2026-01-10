@@ -140,7 +140,7 @@ export default function Dropzone({
           ? `Uploading... ${Math.round(progress)}%`
           : "Drag & Drop your Resume here"}
       </p>
-      <p className="text-sm text-gray-400 mt-1">PDF or DOCX, max 5MB</p>
+      <p className="text-sm text-gray-400 mt-1">PDF or DOCX, max 2MB</p>
     </div>
   );
 }

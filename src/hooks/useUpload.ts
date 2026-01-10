@@ -11,8 +11,8 @@ export default function useUpload() {
 
   const uploadFile = async (file: File): Promise<string | null> => {
     // 1. Validation (Client-side)
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("File is too large. Max 5MB allowed.");
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("File is too large. Max 2MB allowed.");
       return null;
     }
 

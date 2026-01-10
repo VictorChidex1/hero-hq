@@ -1,18 +1,40 @@
-rules_version='2'
+rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    
+    // Safety Net: Deny everything by default
     match /{document=**} {
-      // This rule allows anyone with your database reference to view, edit,
-      // and delete all data in your database. It is useful for getting
-      // started, but it is configured to expire after 30 days because it
-      // leaves your app open to attackers. At that time, all client
-      // requests to your database will be denied.
-      //
-      // Make sure to write security rules for your app before that time, or
-      // else all client requests to your database will be denied until you
-      // update your rules.
-      allow read, write: if request.time < timestamp.date(2026, 2, 9);
+      allow read, write: if false;
+    }
+
+    // Applicants Collection (Linked to Floating Form)
+    match /applicants/{applicantId} {
+      // 1. No one can read the list of applicants (Admin SDK only)
+      allow read: if false;
+
+      // 2. Anyone can submit an application IF they provide the resume
+      allow create: if isValidApplication();
+      
+      // 3. No one can edit/delete after submission
+      allow update, delete: if false;
+    }
+
+    // Validation Logic
+    function isValidApplication() {
+      let incoming = request.resource.data;
+      
+      return 
+        // Must have these fields
+        incoming.keys().hasAll(['name', 'email', 'resumeUrl', 'status']) &&
+        
+        // Data Type Checks
+        incoming.name is string && incoming.name.size() > 0 &&
+        incoming.email is string && incoming.email.size() > 0 &&
+        incoming.resumeUrl is string && incoming.resumeUrl.size() > 0 &&
+        
+        // Status defaults to 'new'
+        incoming.status == 'new';
     }
   }
 }
