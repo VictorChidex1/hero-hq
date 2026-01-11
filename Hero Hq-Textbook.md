@@ -1846,6 +1846,38 @@ const handleDelete = async (id: string) => {
 - **Prop Drilling:** Passing data (like `onDelete`) from a parent component down to a child component.
 - **Modal/Dialog:** A window that sits on top of the main application content (our Slide-Over is a type of Modal).
 
+---
+
+## Chapter 25: Identity Management (Mobile & OAuth)
+
+**The Problem: The "Fake" Logout**
+We noticed that on Mobile, clicking "Back to HQ" seemed to log the user out. The user would return to the homepage, open the menu, and see "Admin" (implying they were logged out), instead of "Mission Control".
+
+**The Cause: Hardcoded Mobile UI**
+We had fixed the Desktop Navbar to be "Auth-Aware" (changing the link based on user state), but we forgot to update the **Mobile Hamburger Menu**. It was hardcoded to _always_ show the 'Admin' link.
+
+**The Fix: Conditional Rendering**
+We synced the logic. Now, the Mobile Menu checks the `user` state just like the Desktop version:
+
+```tsx
+{
+  user ? (
+    <Link to="/admin">Mission Control</Link>
+  ) : (
+    <Link to="/login">Admin</Link>
+  );
+}
 ```
 
+**The Problem: Auto-Login**
+When signing in with Google, Firebase tries to be helpful by automatically logging you in with the last used account. This is bad for admins who manage multiple Google accounts.
+
+**The Fix: Forcing Account Selection**
+We updated the `GoogleAuthProvider` to demand account selection every time.
+
+```typescript
+const provider = new GoogleAuthProvider();
+provider.setCustomParameters({
+  prompt: "select_account",
+});
 ```

@@ -125,13 +125,27 @@ export default function Navbar() {
           >
             Contact
           </button>
-          <Link
-            to="/login"
-            className="text-left px-4 py-2 text-gray-400 font-medium hover:bg-blue-50 hover:text-brand-blue rounded-lg transition-colors"
-            onClick={() => setIsOpen(false)}
-          >
-            Admin
-          </Link>
+          {user ? (
+            <Link
+              to="/admin"
+              className="text-left px-4 py-2 text-brand-blue font-bold hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-2"
+              onClick={() => setIsOpen(false)}
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-green opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-green"></span>
+              </span>
+              Mission Control
+            </Link>
+          ) : (
+            <Link
+              to="/login"
+              className="text-left px-4 py-2 text-gray-400 font-medium hover:bg-blue-50 hover:text-brand-blue rounded-lg transition-colors"
+              onClick={() => setIsOpen(false)}
+            >
+              Admin
+            </Link>
+          )}
           <button
             onClick={() => scrollToSection("application-form")}
             className="w-full text-center bg-brand-green text-white py-3 rounded-xl font-bold hover:bg-green-600 transition-colors"
