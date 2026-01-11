@@ -1594,3 +1594,116 @@ We changed the flow:
 - **Admin Login** -> Redirect to **Dashboard (`/admin`)**.
 
 This keeps the flow logical and frictionless.
+
+---
+
+## Chapter 20: The "Auth-Aware" UI (Persistent Login)
+
+**The Problem:**
+You were logged in, but the Navbar didn't know it. It kept showing you the generic "Admin" link (which points to `/login`). When you clicked "Back to HQ", you felt like a stranger in your own house.
+
+**The Solution: Conditional Rendering**
+We made the `Navbar` component subscribe to the global authentication state.
+
+### 20.1 The Listener (`onAuthStateChanged`)
+
+This is a Firebase listener that runs every time the app loads. It is the "source of truth."
+
+```tsx
+useEffect(() => {
+  // This function runs automatically whenever the user logs in or out
+  const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    setUser(currentUser); // Update our local state
+  });
+  return () => unsubscribe(); // Cleanup listener when component unmounts
+}, []);
+```
+
+### 20.2 The Toggle (Ternary Operator)
+
+We used a Ternary Operator (`condition ? true : false`) to swap the button.
+
+```tsx
+{
+  user ? (
+    // IF USER IS LOGGED IN: Show "Mission Control"
+    <Link to="/admin">Mission Control</Link>
+  ) : (
+    // ELSE: Show "Admin" (Login)
+    <Link to="/login">Admin</Link>
+  );
+}
+```
+
+**Terminology:**
+
+- **Auth-Aware Component:** A UI component that changes its appearance based on whether the user is logged in.
+- **Subscription:** A connection that stays open to listen for changes (like `onAuthStateChanged`).
+
+---
+
+## Chapter 21: Input Discipline (The Hard Limit)
+
+**The Problem:**
+Users could paste a 5,000-word essay into your generic "message" box. This bloats your database and breaks your UI layout.
+
+**The Solution: The `maxLength` Attribute**
+We applied a "Hard Limit" at the browser level.
+
+### 21.1 The Code
+
+```tsx
+<textarea
+  maxLength={1000} // The Bouncer: Stops typing at 1000
+  value={formData.message}
+  onChange={handleChange}
+/>
+<div className="text-right">
+  {formData.message.length} / 1000 {/* The Scoreboard */}
+</div>
+```
+
+**Why this is better than Validation:**
+
+- **Validation** yells at the user _after_ they make a mistake ("Error: Too long!").
+- **Hard Limits** prevent the mistake from happening in the first place. It is a better User Experience (UX).
+
+---
+
+## Chapter 22: CRUD Operations (The Delete Button)
+
+**CRUD** stands for **C**reate, **R**ead, **U**pdate, **D**elete. We just completed the "D".
+
+### 22.1 The Logic Flow
+
+1.  **User Grid:** Click Trash Icon.
+2.  **Safety Check:** `window.confirm()` asks "Are you sure?".
+3.  **Server Action:** Send `deleteDoc` command to Firestore.
+4.  **Local Update:** Remove the item from the screen _without_ refreshing.
+
+### 22.2 The Code Breakdown
+
+```tsx
+const handleDelete = async (id: string) => {
+  // 1. The Safety Check
+  if (!window.confirm("Are you sure?")) return;
+
+  try {
+    // 2. The Server Action (Firestore)
+    await deleteDoc(doc(db, "applicants", id));
+
+    // 3. The Local Update (Optimistic UI)
+    // We filter the list to keep everything EXCEPT the one we just deleted.
+    setApplicants((prev) => prev.filter((app) => app.id !== id));
+
+    toast.success("Deleted!");
+  } catch (error) {
+    toast.error("Failed.");
+  }
+};
+```
+
+**Terminology:**
+
+- **Optimistic UI:** Updating the screen immediately to make the app feel fast, assuming the server will succeed.
+- **Filter:** A Javascript array method that creates a new array with all elements that pass the test.

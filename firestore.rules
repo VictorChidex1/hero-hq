@@ -42,8 +42,8 @@ service cloud.firestore {
       // 2. Public Access: Anyone can CREATE (if valid)
       allow create: if isValidApplication();
       
-      // 3. No one can DELETE (Safety check)
-      allow delete: if false;
+      // 3. Admins CAN DELETE
+      allow delete: if isAdmin();
     }
 
     // Validation Logic
