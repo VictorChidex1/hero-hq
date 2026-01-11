@@ -44,7 +44,7 @@ export default function Navbar() {
             onClick={() => scrollToSection("portfolio")}
             className="text-sm font-semibold text-gray-600 hover:text-brand-blue transition-colors"
           >
-            Our Work
+            Our Mission
           </button>
           <button
             onClick={() => scrollToSection("contact")}
