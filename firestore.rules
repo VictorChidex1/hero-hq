@@ -20,9 +20,18 @@ service cloud.firestore {
 
     // Users Collection (The Role Directory)
     match /users/{userId} {
-      // Users can read/write their own profile
-      // Admins can read anyone's profile
-      allow read, write: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      
+      // CREATE: strict check that role is 'user'
+      allow create: if isAuthenticated() && request.auth.uid == userId && 
+        request.resource.data.role == 'user';
+
+      // UPDATE: deny any changes to the 'role' field
+      allow update: if isAuthenticated() && request.auth.uid == userId &&
+        (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']));
+
+      // ADMIN: Full Access (Overrides above)
+      allow write: if isAdmin();
     }
 
     // Applicants Collection (Linked to Floating Form)

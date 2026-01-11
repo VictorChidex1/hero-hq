@@ -45,7 +45,7 @@ export default function SignupPage() {
       });
 
       toast.success("Account created! Welcome to the team.");
-      navigate("/admin");
+      navigate("/");
     } catch (error: any) {
       console.error(error);
       if (error.code === "auth/email-already-in-use") {
@@ -78,7 +78,7 @@ export default function SignupPage() {
       // Ideally, check existence, but for now merge is safe.
 
       toast.success("Welcome aboard!");
-      navigate("/admin");
+      navigate("/");
     } catch (error) {
       console.error(error);
       toast.error("Google Signup failed.");

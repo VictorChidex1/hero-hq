@@ -1541,3 +1541,56 @@ className = "... hover:bg-brand-blue hover:text-white hover:scale-110";
 3.  **Scale**: Grows by 10% (`scale-110`).
 
 This triple-combo creates a "tactile" button feel, encouraging the user to click. It tells them: "This is active. This works."
+
+---
+
+## Chapter 19: The Bouncer - Securing the Admin
+
+We just implemented "Bank-Level" security to protect your dashboard.
+
+### 19.1 The Problem: "Frontend Security" is a Lie
+
+Novice developers often hide the _Button_ to the dashboard and think they are safe.
+_Hacker:_ "I don't need the button. I'll just type `/admin` in the URL bar."
+
+### 19.2 The Solution: Two Layers of Defense
+
+We built a system that checks for **Authorization** (Role), not just **Authentication** (Login).
+
+#### Layer 1: The Database Lock (`firestore.rules`)
+
+We updated the rules to forbid _anyone_ from crowning themselves king.
+
+```javascript
+// CREATE: You can only be a 'user'
+allow create: if request.resource.data.role == 'user';
+
+// UPDATE: You can change your email, but you CANNOT change your role
+allow update: if !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']);
+```
+
+_Meaning:_ Even if a hacker rewrites your Javascript code to send `role: "admin"`, Firebase will reject the request at the server level.
+
+#### Layer 2: The Bouncer Component (`ProtectedRoute.tsx`)
+
+We upgraded the bouncer to check the ID card against the guest list.
+
+```tsx
+// The Bouncer Logic
+if (!user || !isAuthorized) {
+  return <Navigate to="/login" replace />;
+}
+```
+
+1.  **`!user`**: "You aren't logged in." -> **Login Page**.
+2.  **`!isAuthorized`**: "You are logged in, but you're just a civilian." -> **Login Page**.
+
+### 19.3 The User Experience (UX) Fix
+
+When a new user signs up, they used to get sent to `/admin`, bounce off the security wall, and land back at `/login`.
+We changed the flow:
+
+- **Signup Success** -> Redirect to **Home (`/`)**.
+- **Admin Login** -> Redirect to **Dashboard (`/admin`)**.
+
+This keeps the flow logical and frictionless.
