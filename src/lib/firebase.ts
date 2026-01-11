@@ -12,11 +12,20 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-import { getAuth } from "firebase/auth";
+import {
+  getAuth,
+  setPersistence,
+  browserLocalPersistence,
+} from "firebase/auth";
 
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
 const db = getFirestore(app);
 const auth = getAuth(app);
+
+// Explicitly set persistence to LOCAL (survives refresh and close)
+setPersistence(auth, browserLocalPersistence).catch((error) => {
+  console.error("Firebase Persistence Error:", error);
+});
 
 export { storage, db, auth };

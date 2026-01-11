@@ -1764,6 +1764,88 @@ function App() {
 - **Class Component:** The "Old School" way of writing React components using ES6 Classes. Required for Error Boundaries.
 - **Lifecycle Method:** Special functions (like `componentDidCatch`) that run at specific times in a component's life.
 
+---
+
+## Chapter 24: The Master-Detail Architecture (Dashboard 2.0)
+
+**The Problem: Data Density**
+We hit a wall. As soon as we allowed 1000-character cover letters, our table row layout broke. It looked cluttered, text was truncated ("..."), and admins couldn't read the applications properly.
+
+**The Solution: Master-Detail Pattern**
+Instead of trying to fit everything into one row, we split the UI into two parts:
+
+1.  **Master View (The List):** A clean, high-level summary (Name, Email, Status).
+2.  **Detail View (The Inspector):** A dedicated panel that slides in to show _everything_ about one specific item.
+
+### 24.1 Type Safety (The `types` folder)
+
+First, we did some house cleaning. We had the `Applicant` interface defined inside `AdminDashboard.tsx`. But now that we have _two_ components needing that shape (`AdminDashboard` and `ApplicationInspector`), we moved it to a shared home.
+
+**Old Way:** Copy-paste the interface (Bad).
+**New Way:** extract to `src/types/index.ts`.
+
+```typescript
+// src/types/index.ts
+export interface Applicant {
+  id: string;
+  name: string;
+  // ... other fields
+}
+```
+
+Now any file can just `import { type Applicant } from '../types';`.
+
+### 24.2 The "Inspector" Component
+
+We built a dumb component (UI only) called `ApplicationInspector`. It doesn't fetch data; it just receives data via **Props**.
+
+```tsx
+interface Props {
+  applicant: Applicant | null; // The data to show
+  onClose: () => void; // Function to call to close panel
+  onDelete: (id: string) => void; // Function to call to delete
+}
+```
+
+### 24.3 Controlling the Slide-Over (State Management)
+
+In the parent (`AdminDashboard`), we added a new piece of state:
+
+```tsx
+const [selectedApplicant, setSelectedApplicant] = useState<Applicant | null>(
+  null
+);
+```
+
+**The Logic:**
+
+- **Initial State:** `null` (Inspector is hidden).
+- **Click Row:** `setSelectedApplicant(app)` -> Inspector slides in with that data.
+- **Click "X" or Backdrop:** `setSelectedApplicant(null)` -> Inspector slides out.
+
+### 24.4 The Optimistic Delete
+
+When you delete from the Inspector, we have to be careful. If we just deleted the item, the Inspector might crash because it's trying to display data that no longer exists.
+
+**The Fix:**
+
+```tsx
+const handleDelete = async (id: string) => {
+  // ... delete from firestore ...
+
+  // If the deleted guy is the one currently open in the Inspector, close it!
+  if (selectedApplicant?.id === id) {
+    setSelectedApplicant(null);
+  }
+};
+```
+
+**Terminology:**
+
+- **Master-Detail:** A UI pattern where one part of the screen allows selecting an item, and another part shows detailed information.
+- **Prop Drilling:** Passing data (like `onDelete`) from a parent component down to a child component.
+- **Modal/Dialog:** A window that sits on top of the main application content (our Slide-Over is a type of Modal).
+
 ```
 
 ```
