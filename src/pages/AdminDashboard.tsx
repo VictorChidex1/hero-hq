@@ -1,50 +1,34 @@
 import { useEffect, useState } from "react";
 import SEO from "../components/seo/SEO";
-import {
-  collection,
-  query,
-  getDocs,
-  Timestamp,
-  deleteDoc,
-  doc,
-} from "firebase/firestore";
+import { collection, query, getDocs, deleteDoc, doc } from "firebase/firestore";
 import { db, auth } from "../lib/firebase";
 import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
-  FileText,
   LogOut,
   Shield,
-  MessageSquare,
   Calendar,
   Phone,
   Mail,
   User,
   Trash2,
+  Eye,
 } from "lucide-react";
-
-interface Applicant {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  message: string;
-  resumeUrl: string;
-  status: string;
-  createdAt: Timestamp;
-}
+import { type Applicant } from "../types";
+import ApplicationInspector from "../components/admin/ApplicationInspector";
 
 export default function AdminDashboard() {
   const [applicants, setApplicants] = useState<Applicant[]>([]);
+  const [selectedApplicant, setSelectedApplicant] = useState<Applicant | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchApplicants = async () => {
       try {
-        // FIX: We removed 'orderBy' to avoid "Missing Index" errors on new projects.
-        // We will sort the data in JavaScript instead (Client-Side Sorting).
         const q = query(collection(db, "applicants"));
 
         const querySnapshot = await getDocs(q);
@@ -55,7 +39,6 @@ export default function AdminDashboard() {
         })) as Applicant[];
 
         // Client-Side Sort: Newest first
-        // We use the seconds timestamp from Firebase
         apps.sort((a, b) => {
           const timeA = a.createdAt?.seconds || 0;
           const timeB = b.createdAt?.seconds || 0;
@@ -65,7 +48,6 @@ export default function AdminDashboard() {
         setApplicants(apps);
       } catch (error: any) {
         console.error("Error fetching documents: ", error);
-
         toast.error(`Failed to load: ${error.message}`);
       } finally {
         setLoading(false);
@@ -88,20 +70,17 @@ export default function AdminDashboard() {
     try {
       await deleteDoc(doc(db, "applicants", id));
       setApplicants((prev) => prev.filter((app) => app.id !== id));
+
+      // If the deleted applicant was open in the inspector, close it.
+      if (selectedApplicant?.id === id) {
+        setSelectedApplicant(null);
+      }
+
       toast.success("Application deleted successfully");
     } catch (error) {
       console.error("Error deleting document: ", error);
       toast.error("Failed to delete application");
     }
-  };
-
-  // Helper: Force Cloudinary to download instead of preview
-  const getDownloadUrl = (url: string) => {
-    if (!url) return "#";
-    if (url.includes("cloudinary.com") && url.includes("/upload/")) {
-      return url.replace("/upload/", "/upload/fl_attachment/");
-    }
-    return url;
   };
 
   return (
@@ -165,7 +144,6 @@ export default function AdminDashboard() {
                   <th className="px-6 py-4">Created At</th>
                   <th className="px-6 py-4">Candidate</th>
                   <th className="px-6 py-4">Contact Info</th>
-                  <th className="px-6 py-4 w-1/3">Message</th>
                   <th className="px-6 py-4">Status</th>
                   <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
@@ -174,7 +152,7 @@ export default function AdminDashboard() {
                 {loading ? (
                   <tr>
                     <td
-                      colSpan={6}
+                      colSpan={5}
                       className="px-6 py-24 text-center text-gray-400"
                     >
                       <div className="flex flex-col items-center gap-3">
@@ -186,7 +164,7 @@ export default function AdminDashboard() {
                 ) : applicants.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={6}
+                      colSpan={5}
                       className="px-6 py-24 text-center text-gray-400"
                     >
                       <div className="flex flex-col items-center gap-2">
@@ -199,7 +177,12 @@ export default function AdminDashboard() {
                   applicants.map((app) => (
                     <tr
                       key={app.id}
-                      className="hover:bg-blue-50/20 transition-colors group"
+                      onClick={() => setSelectedApplicant(app)}
+                      className={`cursor-pointer transition-colors group ${
+                        selectedApplicant?.id === app.id
+                          ? "bg-blue-50"
+                          : "hover:bg-gray-50"
+                      }`}
                     >
                       {/* Created At */}
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -209,16 +192,7 @@ export default function AdminDashboard() {
                             ?.toDate()
                             .toLocaleDateString(undefined, {
                               month: "short",
-                              day: "numeric",
                               year: "numeric",
-                            })}
-                        </div>
-                        <div className="text-xs text-gray-400 pl-6">
-                          {app.createdAt
-                            ?.toDate()
-                            .toLocaleTimeString(undefined, {
-                              hour: "2-digit",
-                              minute: "2-digit",
                             })}
                         </div>
                       </td>
@@ -252,27 +226,6 @@ export default function AdminDashboard() {
                         </div>
                       </td>
 
-                      {/* Message */}
-                      <td className="px-6 py-4">
-                        <div className="relative group/msg">
-                          <div className="flex items-start gap-2 max-w-xs">
-                            <MessageSquare className="w-4 h-4 text-gray-300 mt-1 shrink-0" />
-                            <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
-                              {app.message || "No message provided."}
-                            </p>
-                          </div>
-                          {/* Hover Tooltip for long messages */}
-                          {app.message && app.message.length > 60 && (
-                            <div
-                              className="absolute left-0 bottom-full mb-2 w-64 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl 
-                            opacity-0 group-hover/msg:opacity-100 transition-opacity pointer-events-none z-50"
-                            >
-                              {app.message}
-                            </div>
-                          )}
-                        </div>
-                      </td>
-
                       {/* Status */}
                       <td className="px-6 py-4">
                         <span
@@ -293,20 +246,25 @@ export default function AdminDashboard() {
                         </span>
                       </td>
 
-                      {/* Resume / Actions */}
+                      {/* Actions */}
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <a
-                            href={getDownloadUrl(app.resumeUrl)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-gray-200 text-gray-700 text-xs font-medium hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 transition-all shadow-sm"
-                          >
-                            <FileText className="w-3.5 h-3.5" />
-                            Resume
-                          </a>
                           <button
-                            onClick={() => handleDelete(app.id)}
+                            onClick={(e) => {
+                              e.stopPropagation(); // Don't trigger row click
+                              setSelectedApplicant(app);
+                            }}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-gray-200 text-gray-700 text-xs font-medium hover:bg-gray-50 hover:border-gray-300 hover:text-brand-blue transition-all shadow-sm"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            View
+                          </button>
+
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation(); // Don't trigger row click
+                              handleDelete(app.id);
+                            }}
                             className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
                             title="Delete Application"
                           >
@@ -322,6 +280,13 @@ export default function AdminDashboard() {
           </div>
         </div>
       </main>
+
+      {/* Slide-Over Inspector */}
+      <ApplicationInspector
+        applicant={selectedApplicant}
+        onClose={() => setSelectedApplicant(null)}
+        onDelete={handleDelete}
+      />
     </div>
   );
 }

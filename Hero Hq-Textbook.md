@@ -1707,3 +1707,63 @@ const handleDelete = async (id: string) => {
 
 - **Optimistic UI:** Updating the screen immediately to make the app feel fast, assuming the server will succeed.
 - **Filter:** A Javascript array method that creates a new array with all elements that pass the test.
+
+---
+
+## Chapter 23: The Safety Net (Error Boundaries)
+
+**The Problem: The White Screen of Death**
+In React, if a single component crashes (e.g., tries to read `undefined.name`), the _entire_ website crashes and disappears. The user sees a blank white screen and has no idea what happened.
+
+**The Solution: Error Boundaries**
+An Error Boundary is like a "Catch-All" net that sits at the top of your app. If anything falls (crashes) inside the app, the net catches it and shows a "Nice Failure Message" instead of a total crash.
+
+### 23.1 The Component Class
+
+Error Boundaries _must_ be Class Components (not Functional Components) because they use the special lifecycle method `componentDidCatch`.
+
+```tsx
+export default class ErrorBoundary extends Component<Props, State> {
+  // 1. Update state so the next render will show the fallback UI.
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true };
+  }
+
+  // 2. You can also log the error to an error reporting service
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error("Crash!", error);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      // 3. You can render any custom fallback UI
+      return <h1>Something went wrong.</h1>;
+    }
+
+    return this.props.children;
+  }
+}
+```
+
+### 23.2 Wrapping the App
+
+We placed the `<ErrorBoundary>` at the very top of `App.tsx`:
+
+```tsx
+function App() {
+  return (
+    <ErrorBoundary>
+      <BrowserRouter> ... </BrowserRouter>
+    </ErrorBoundary>
+  );
+}
+```
+
+**Terminology:**
+
+- **Class Component:** The "Old School" way of writing React components using ES6 Classes. Required for Error Boundaries.
+- **Lifecycle Method:** Special functions (like `componentDidCatch`) that run at specific times in a component's life.
+
+```
+
+```
