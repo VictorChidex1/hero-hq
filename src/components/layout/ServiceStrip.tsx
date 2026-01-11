@@ -10,10 +10,10 @@ export default function ServiceStrip() {
         </p>
         <div className="hidden md:flex items-center gap-6 opacity-90">
           <a
-            href="tel:5551234567"
+            href="tel:+14696514321"
             className="hover:text-brand-yellow transition-colors flex items-center gap-1"
           >
-            <Phone className="w-3 h-3" /> +1 (555) 123-4567
+            <Phone className="w-3 h-3" /> +1 (469) 651-4321
           </a>
         </div>
       </div>

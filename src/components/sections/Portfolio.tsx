@@ -51,8 +51,12 @@ export default function Portfolio() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <div className="inline-block px-4 py-1.5 rounded-full bg-blue-50 text-brand-blue font-bold text-sm tracking-wide mb-4">
-              MISSION PROFILES
+            <div className="relative inline-block px-6 py-2 rounded-full overflow-hidden border border-brand-blue/30 bg-gradient-to-r from-brand-blue/20 to-transparent mb-4 shadow-[0_0_15px_rgba(15,111,183,0.2)]">
+              <span className="relative z-10 text-brand-blue font-bold text-xs uppercase tracking-[0.2em]">
+                MISSION PROFILES
+              </span>
+              {/* Shimmer Effect */}
+              <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full animate-shimmer"></div>
             </div>
             <h2 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6 tracking-tight">
               Choose Your <span className="text-brand-blue">Mission</span>

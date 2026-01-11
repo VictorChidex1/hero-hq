@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Facebook, Instagram } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -22,10 +23,47 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold mb-4">Socials</h4>
             <div className="flex gap-4">
-              {/* Placeholders for social icons */}
-              <div className="w-8 h-8 bg-gray-700 rounded-full"></div>
-              <div className="w-8 h-8 bg-gray-700 rounded-full"></div>
-              <div className="w-8 h-8 bg-gray-700 rounded-full"></div>
+              <a
+                href="https://www.facebook.com/TheCanman1"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-brand-blue hover:text-white transition-all transform hover:scale-110"
+                aria-label="Facebook"
+              >
+                <Facebook className="w-5 h-5" />
+              </a>
+              <a
+                href="https://www.instagram.com/the_canmancan/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-brand-blue hover:text-white transition-all transform hover:scale-110"
+                aria-label="Instagram"
+              >
+                <Instagram className="w-5 h-5" />
+              </a>
+              <a
+                href="https://www.tiktok.com/@thecanmancan1/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-brand-blue hover:text-white transition-all transform hover:scale-110"
+                aria-label="TikTok"
+              >
+                {/* Lucide doesn't have a TikTok icon by default in older versions, checking if available or using SVG */}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-5 h-5"
+                >
+                  <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+                </svg>
+              </a>
             </div>
           </div>
         </div>
