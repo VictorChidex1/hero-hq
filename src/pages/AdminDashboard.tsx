@@ -57,7 +57,7 @@ export default function AdminDashboard() {
         setApplicants(apps);
       } catch (error: any) {
         console.error("Error fetching documents: ", error);
-        // Display the ACTUAL error message so we know if it's Permissions vs Network
+
         toast.error(`Failed to load: ${error.message}`);
       } finally {
         setLoading(false);
@@ -70,6 +70,15 @@ export default function AdminDashboard() {
   const handleLogout = async () => {
     await signOut(auth);
     navigate("/login");
+  };
+
+  // Helper: Force Cloudinary to download instead of preview
+  const getDownloadUrl = (url: string) => {
+    if (!url) return "#";
+    if (url.includes("cloudinary.com") && url.includes("/upload/")) {
+      return url.replace("/upload/", "/upload/fl_attachment/");
+    }
+    return url;
   };
 
   return (
@@ -92,13 +101,21 @@ export default function AdminDashboard() {
             <p className="text-xs text-gray-500 font-medium">Hero HQ Admin</p>
           </div>
         </div>
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-2 text-gray-600 hover:text-red-600 hover:bg-red-50 px-4 py-2 rounded-lg transition-all text-sm font-semibold"
-        >
-          <LogOut className="w-4 h-4" />
-          Sign Out
-        </button>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate("/")}
+            className="text-gray-600 hover:text-brand-blue hover:bg-blue-50 px-4 py-2 rounded-lg transition-all text-sm font-semibold"
+          >
+            Back to HQ
+          </button>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 text-gray-600 hover:text-red-600 hover:bg-red-50 px-4 py-2 rounded-lg transition-all text-sm font-semibold"
+          >
+            <LogOut className="w-4 h-4" />
+            Sign Out
+          </button>
+        </div>
       </nav>
 
       {/* Main Content */}
@@ -186,7 +203,10 @@ export default function AdminDashboard() {
                       {/* Candidate Name */}
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-brand-blue/10 flex items-center justify-center text-brand-blue font-bold text-xs">
+                          <div
+                            className="w-8 h-8 rounded-full bg-brand-blue/10 flex items-center justify-center
+                           text-brand-blue font-bold text-xs"
+                          >
                             {app.name.charAt(0).toUpperCase()}
                           </div>
                           <div className="font-semibold text-gray-900">
@@ -220,7 +240,10 @@ export default function AdminDashboard() {
                           </div>
                           {/* Hover Tooltip for long messages */}
                           {app.message && app.message.length > 60 && (
-                            <div className="absolute left-0 bottom-full mb-2 w-64 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl opacity-0 group-hover/msg:opacity-100 transition-opacity pointer-events-none z-50">
+                            <div
+                              className="absolute left-0 bottom-full mb-2 w-64 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-xl 
+                            opacity-0 group-hover/msg:opacity-100 transition-opacity pointer-events-none z-50"
+                            >
                               {app.message}
                             </div>
                           )}
@@ -250,7 +273,7 @@ export default function AdminDashboard() {
                       {/* Resume / Actions */}
                       <td className="px-6 py-4 text-right">
                         <a
-                          href={app.resumeUrl}
+                          href={getDownloadUrl(app.resumeUrl)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 transition-all shadow-sm"

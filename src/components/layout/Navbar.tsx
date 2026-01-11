@@ -1,9 +1,19 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Link } from "react-router-dom";
+import { onAuthStateChanged, type User } from "firebase/auth";
+import { auth } from "../../lib/firebase";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const scrollToSection = (id: string) => {
     setIsOpen(false);
@@ -53,12 +63,25 @@ export default function Navbar() {
             Contact
           </button>
 
-          <Link
-            to="/login"
-            className="text-sm font-semibold text-gray-400 hover:text-brand-blue transition-colors"
-          >
-            Admin
-          </Link>
+          {user ? (
+            <Link
+              to="/admin"
+              className="text-sm font-bold text-brand-blue hover:text-brand-green transition-colors flex items-center gap-2"
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-green opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-green"></span>
+              </span>
+              Mission Control
+            </Link>
+          ) : (
+            <Link
+              to="/login"
+              className="text-sm font-semibold text-gray-400 hover:text-brand-blue transition-colors"
+            >
+              Admin
+            </Link>
+          )}
 
           {/* Pulsing CTA - Manually aligned with negative margin for optical balance */}
           <button
