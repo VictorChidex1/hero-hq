@@ -8,7 +8,15 @@ export default function Footer() {
         {/* ... (lines 5-30 unchanged) ... */}
         <div className="grid md:grid-cols-3 gap-8 mb-8">
           <div>
-            <h3 className="font-bold text-lg mb-4">THE CANMAN</h3>
+            {/* Logo */}
+            <div className="flex items-center gap-2">
+              <img
+                src="/images/canman-icon.png"
+                alt="The CanMan Logo"
+                className="h-10 w-auto hover:brightness-110 transition-all cursor-pointer"
+                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              />
+            </div>
             <p className="text-gray-400 text-sm">
               Ridiculous Hospitality for the Digital Age.
             </p>
@@ -33,7 +41,8 @@ export default function Footer() {
                 href="https://www.facebook.com/TheCanman1"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-brand-green hover:text-white transition-all transform hover:scale-110"
+                className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center
+                 hover:bg-brand-green hover:text-white transition-all transform hover:scale-110"
                 aria-label="Facebook"
               >
                 <Facebook className="w-5 h-5" />
@@ -42,7 +51,8 @@ export default function Footer() {
                 href="https://www.instagram.com/the_canmancan/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-brand-green hover:text-white transition-all transform hover:scale-110"
+                className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center
+                 hover:bg-brand-green hover:text-white transition-all transform hover:scale-110"
                 aria-label="Instagram"
               >
                 <Instagram className="w-5 h-5" />
@@ -51,7 +61,8 @@ export default function Footer() {
                 href="https://www.tiktok.com/@thecanmancan1/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-brand-green hover:text-white transition-all transform hover:scale-110"
+                className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-brand-green
+                 hover:text-white transition-all transform hover:scale-110"
                 aria-label="TikTok"
               >
                 {/* Lucide doesn't have a TikTok icon by default in older versions, checking if available or using SVG */}
