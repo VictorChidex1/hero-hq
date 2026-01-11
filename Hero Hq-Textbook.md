@@ -1386,11 +1386,11 @@ You aren't just telling people you have values; you are **showing** them that yo
 
 ---
 
-## Chapter 16: The Mission Profiles - Data-Driven UI
+## Chapter 17: The Mission Profiles - Data-Driven UI
 
 You asked for a "Deep Dive" into the new Portfolio section. We didn't just hard-code three images; we built a scalable content engine.
 
-### 16.1 The Concept: "Maps" over "Hardcoding"
+### 17.1 The Concept: "Maps" over "Hardcoding"
 
 **Novice Approach:**
 Writing out the HTML for Card 1, then copy-pasting it for Card 2 and Card 3.
@@ -1399,14 +1399,14 @@ _Problem:_ If you want to change the border color, you have to do it 3 times.
 **Our Approach (The "Mentor" Way):**
 We separated the **Data** (The Content) from the **Table** (The UI).
 
-### 16.2 Key Terminologies
+### 17.2 Key Terminologies
 
 - **Array of Objects**: A list of data packages. Each package contains the ingredients for one card (Title, Image, Color, Description).
 - **Map Function (`.map()`)**: A Javascript machine that takes a list of ingredients and spits out a list of UI components.
 - **Interpolation (`${variable}`)**: Injecting dynamic data into a string using backticks.
 - **Group Hover (`group-hover`)**: A Tailwind superpower. It says "When the user hovers over the _Parent_ card, I want _this specific child element_ to change."
 
-### 16.3 The Code Breakdown
+### 17.3 The Code Breakdown
 
 #### Step 1: The Data Array
 
@@ -1476,10 +1476,68 @@ _Meaning:_
 2. `scale-x-0`: Start invisible (width 0).
 3. `group-hover:scale-x-100`: When parent is hovered, expand to full width.
 
-### 16.4 Why this code is "Senior Level"
+### 17.4 Why this code is "Senior Level"
 
 1.  **Maintainability**: If you want to add a 4th role ("The Dispatcher"), you just add 5 lines of text to the Array. You don't touch the UI code.
 2.  **Performance**: We used CSS transforms (`scale`, `translate`) instead of changing `width` or `margin`. This is hardware accelerated by the GPU (Graphics Card), making it buttery smooth on mobile phones.
 3.  **Encapsulation**: All visual logic is contained within the component. The `Portfolio.tsx` is self-sufficient.
 
 You are now managing a **Design System**, not just a webpage.
+
+---
+
+## Chapter 18: Social Engineering - The Footer Update
+
+You asked for a deep dive into the recent Footer update. We didn't just paste links; we built secure, robust touchpoints.
+
+### 18.1 The Logic: Anchor Tags vs. Router Links
+
+**The Question:** _"Why did we use `<a>` tags instead of `<Link>`?"_
+
+- **`<Link to="/login">`**: Used for **Internal Navigation**. It uses the "Teleporter" (Client-Side Routing) we discussed in Chapter 9. It stays _inside_ the app.
+- **`<a href="facebook.com">`**: Used for **External Navigation**. It tells the browser "Leave this app and go to Facebook."
+
+**The Rule:** If you are leaving the domain, you MUST use `<a>`.
+
+### 18.2 Security: The `noopener noreferrer` Shield
+
+You will see this code on every external link:
+
+```tsx
+target = "_blank";
+rel = "noopener noreferrer";
+```
+
+**Why it matters (The Mentor Lesson):**
+When you use `target="_blank"` to open a new tab, you are technically giving the _new_ page partial access to your _original_ page via Javascript (`window.opener`).
+A malicious site could theoretically crash your app or redirect your user to a scam page while you aren't looking.
+
+**The Fix:**
+
+- **`noopener`**: "Do not let the new page know who sent them." (Cuts the connection).
+- **`noreferrer`**: "Do not reveal my exact address to their analytics." (Privacy).
+
+**Always** pair `target="_blank"` with these two guards.
+
+### 18.3 Visuals: Flexbox & SVGs
+
+**A. The Layout (`flex gap-4`)**
+We used Flexbox to align the icons horizontally with a consistent 1rem (`gap-4`) spacing.
+
+**B. The Icons (Lucide vs. Custom)**
+
+- **Facebook/Instagram:** We imported these from `lucide-react`. Standard, clean, reliable.
+- **TikTok:** Lucide often lags behind on newer brand icons. Instead of installing a massive new library just for one icon, we used a **Raw SVG**.
+  - _Logic:_ It's lightweight (kilobytes vs megabytes) and gives us pixel-perfect control.
+
+### 18.4 The "Premium" Hover State
+
+```tsx
+className = "... hover:bg-brand-blue hover:text-white hover:scale-110";
+```
+
+1.  **Background**: Turns Brand Blue.
+2.  **Text**: Turns White.
+3.  **Scale**: Grows by 10% (`scale-110`).
+
+This triple-combo creates a "tactile" button feel, encouraging the user to click. It tells them: "This is active. This works."

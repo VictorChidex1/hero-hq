@@ -8,7 +8,7 @@ export default function Footer() {
         {/* ... (lines 5-30 unchanged) ... */}
         <div className="grid md:grid-cols-3 gap-8 mb-8">
           <div>
-            <h3 className="font-bold text-lg mb-4">HERO HQ</h3>
+            <h3 className="font-bold text-lg mb-4">THE CANMAN</h3>
             <p className="text-gray-400 text-sm">
               Ridiculous Hospitality for the Digital Age.
             </p>
@@ -17,7 +17,13 @@ export default function Footer() {
             <h4 className="font-semibold mb-4">Contact</h4>
             <div className="space-y-2 text-sm text-gray-400">
               <p>Dallas, Texas</p>
-              <p>hello@hero-hq.com</p>
+
+              <a
+                href="mailto:hello@canmancan.com"
+                className="hover:text-brand-green transition-colors"
+              >
+                hello@canmancan.com
+              </a>
             </div>
           </div>
           <div>
