@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import SEO from "../components/seo/SEO";
-import { collection, query, getDocs, Timestamp } from "firebase/firestore";
+import {
+  collection,
+  query,
+  getDocs,
+  Timestamp,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
 import { db, auth } from "../lib/firebase";
 import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
@@ -14,6 +21,7 @@ import {
   Phone,
   Mail,
   User,
+  Trash2,
 } from "lucide-react";
 
 interface Applicant {
@@ -70,6 +78,21 @@ export default function AdminDashboard() {
   const handleLogout = async () => {
     await signOut(auth);
     navigate("/login");
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this application?")) {
+      return;
+    }
+
+    try {
+      await deleteDoc(doc(db, "applicants", id));
+      setApplicants((prev) => prev.filter((app) => app.id !== id));
+      toast.success("Application deleted successfully");
+    } catch (error) {
+      console.error("Error deleting document: ", error);
+      toast.error("Failed to delete application");
+    }
   };
 
   // Helper: Force Cloudinary to download instead of preview
@@ -272,15 +295,24 @@ export default function AdminDashboard() {
 
                       {/* Resume / Actions */}
                       <td className="px-6 py-4 text-right">
-                        <a
-                          href={getDownloadUrl(app.resumeUrl)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 transition-all shadow-sm"
-                        >
-                          <FileText className="w-4 h-4" />
-                          Resume
-                        </a>
+                        <div className="flex items-center justify-end gap-2">
+                          <a
+                            href={getDownloadUrl(app.resumeUrl)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-gray-200 text-gray-700 text-xs font-medium hover:bg-gray-50 hover:border-gray-300 hover:text-gray-900 transition-all shadow-sm"
+                          >
+                            <FileText className="w-3.5 h-3.5" />
+                            Resume
+                          </a>
+                          <button
+                            onClick={() => handleDelete(app.id)}
+                            className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                            title="Delete Application"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))

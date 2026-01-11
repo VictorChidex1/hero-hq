@@ -164,9 +164,13 @@ export default function FloatingForm() {
               value={formData.message}
               onChange={handleChange}
               rows={3}
+              maxLength={1000}
               className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-brand-blue focus:ring-2 focus:ring-brand-blue/20 outline-none transition-all resize-none"
               placeholder="Tell us why you are a good fit..."
             />
+            <div className="text-right text-xs text-gray-400 mt-1">
+              {formData.message.length} / 1000
+            </div>
           </div>
 
           {/* SUBMIT BUTTON */}
