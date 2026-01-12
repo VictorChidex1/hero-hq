@@ -62,10 +62,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-brand-dark flex flex-col p-4 relative">
-      <SEO
-        title="Login | Hero HQ"
-        description="Secure access for Hero HQ administrators."
-      />
+      <SEO title="Login | CanMan HQ" description="Login to CanMan HQ." />
       <Link
         to="/"
         className="absolute top-4 left-4 text-white hover:text-brand-blue transition-colors flex items-center gap-2"

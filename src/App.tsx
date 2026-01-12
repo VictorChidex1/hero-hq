@@ -9,36 +9,40 @@ import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import ErrorBoundary from "./components/ui/ErrorBoundary";
 
+import { AuthProvider } from "./contexts/AuthContext";
+
 function App() {
   return (
     <ErrorBoundary>
-      <BrowserRouter>
-        <Toaster position="top-right" richColors />
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <Layout>
-                <SEO
-                  title="Hero HQ | The Can Man"
-                  description="Join the elite team at The Can Man. Apply now to become a Hero and help us clean up Texas."
-                />
-                <Home />
-              </Layout>
-            }
-          />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute>
-                <AdminDashboard />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <Toaster position="top-right" richColors />
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <Layout>
+                  <SEO
+                    title="CanMan HQ | The Can Man"
+                    description="Join the elite team at The Can Man. Apply now to become a Hero and help us clean up Texas."
+                  />
+                  <Home />
+                </Layout>
+              }
+            />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </ErrorBoundary>
   );
 }

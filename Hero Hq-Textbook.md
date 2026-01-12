@@ -1872,12 +1872,193 @@ We synced the logic. Now, the Mobile Menu checks the `user` state just like the 
 **The Problem: Auto-Login**
 When signing in with Google, Firebase tries to be helpful by automatically logging you in with the last used account. This is bad for admins who manage multiple Google accounts.
 
-**The Fix: Forcing Account Selection**
-We updated the `GoogleAuthProvider` to demand account selection every time.
+**Terminolgy:**
 
-```typescript
-const provider = new GoogleAuthProvider();
-provider.setCustomParameters({
-  prompt: "select_account",
-});
+- **SSOT (Single Source of Truth):** storing data in one place so everyone has the same version.
+- **Context API:** React's built-in way to teleport data to any component without Props.
+
+---
+
+## Chapter 26: The "Single Source of Truth" (Auth Context)
+
+**The Problem: The Illusion of State**
+We had a serious bug. You would log out, but the Navbar would say you were still logged in.
+Why? Because every component (`Navbar`, `ProtectedRoute`, `AdminDashboard`) was asking Firebase "Are we logged in?" separately. When you logged out, the Navbar didn't get the memo fast enough.
+
+**The Solution: Centralized State (Context)**
+We stopped letting components ask Firebase directly. Instead, we created **The Broadcaster** called `AuthContext`.
+
+### 26.1 The Broadcaster (`AuthContext.tsx`)
+
+This file does the heavy lifting.
+
+1.  It listens to Firebase.
+2.  It checks your ID badge (Firestore Role).
+3.  It broadcasts your status to the entire app.
+
+```tsx
+// src/contexts/AuthContext.tsx
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // The ONLY listener in the entire app
+    onAuthStateChanged(auth, (user) => {
+      setUser(user);
+    });
+  }, []);
+
+  return (
+    <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>
+  );
+}
 ```
+
+### 26.2 The Consumer (`useAuth`)
+
+Now, components just plug into the broadcast.
+
+**Old Navbar (Bad):**
+
+```tsx
+// Had its own state... confused easily.
+const [user, setUser] = useState(null);
+useEffect(...) // Duplicate logic
+```
+
+**New Navbar (Good):**
+
+```tsx
+// Pure consumer. Always accurate.
+const { user } = useAuth();
+```
+
+**Result:**
+When you click "Sign Out", the Broadcaster updates immediately. Since the Navbar is plugged into the Broadcaster, it updates _instantly_. No delay. No ghost logins.
+# Chapter 27: The Detective Work - Debugging Auth Flows
+
+_In this chapter, we put on our detective hats. We encounter two baffling crimes: a user who couldn't leave (logout failed) and a user who couldn't enter (signup failed). Here is how we solved them._
+
+## 27.1 The Case of the "Zombie Login"
+
+### 🕵️‍♂️ The Symptom
+
+You clicked "Log Out." The system _said_ you were logged out. But when you looked at the Navbar, it still said **"Mission Control"** (meaning you were an Admin). It was like a zombie—technically dead, but still walking around.
+
+### 🔍 The Diagnosis: "Stale Clones"
+
+The problem was that our `Navbar` and `ProtectedRoute` were acting like **independent clones**.
+
+1.  **Navbar Clone:** Had its own `useEffect` to check if you were logged in.
+2.  **App Clone:** Had _another_ listener.
+3.  **Logout Button:** Told Firebase "Sign out!"
+
+When you clicked Logout, Firebase signed you out. But the **Navbar Clone** didn't get the memo fast enough. It was holding onto "Stale State." It was looking at a photograph of you from 5 minutes ago, not the real you.
+
+### 🛠️ The Fix: The Single Source of Truth
+
+We fired the clones. We hired a **Town Crier** called `AuthContext`.
+
+**The Logic:**
+Instead of every component asking "Is he logged in?", they now listen to _one_ voice.
+
+1.  **AuthContext (The Source):** Listens to Firebase. When the status changes, it shouts "USER IS LOGGED OUT!"
+2.  **Navbar (The Listener):** Hears the shout and immediately re-renders.
+
+**The Code:**
+
+```tsx
+// src/components/layout/Navbar.tsx
+
+// OLD (The Detective who arrived late)
+// const [user, setUser] = useState(null)
+// useEffect(() => { ...check auth... })
+
+// NEW (The Walkie-Talkie)
+import { useAuth } from "../../contexts/AuthContext";
+
+export default function Navbar() {
+  const { user, isAdmin } = useAuth(); // <--- Instant Updates
+
+  // Now, if 'user' becomes null in the Context, this component
+  // re-renders INSTANTLY. "Mission Control" disappears.
+}
+```
+
+---
+
+## 27.2 The Case of the "Google Reject"
+
+### 🕵️‍♂️ The Symptom
+
+You tried to sign up with a new Google Account (`ronclifft`). The frontend screamed **"Google Signup Failed"**. But when you looked at the Firebase Console, the user was there! Why did the code think it failed?
+
+### 🔍 The Diagnosis: The "Strict Bouncer" Race Condition
+
+Your `firestore.rules` are very strict (as they should be).
+
+- **Rule:** "You can only create a user document if the data contains `role: 'user'`."
+
+**The Flaw:**
+Our code was lazy. It looked like this:
+
+```javascript
+// OLD IMPERFECT LOGIC
+setDoc(
+  doc(db, "users", uid),
+  {
+    email: "ron@gmail.com",
+    // OOPS! We forgot 'role: user'!
+  },
+  { merge: true }
+);
+```
+
+**The Conflict:**
+
+1.  We try to write to Firestore.
+2.  The **Bouncer (Rules Engine)** looks at the data: `{ email: "ron..." }`.
+3.  The Bouncer looks at the rule: `allow create: if request.resource.data.role == 'user'`.
+4.  **Bouncer:** "You didn't show me your ID (role). ACCESS DENIED."
+5.  **Frontend:** Crashes.
+
+### 🛠️ The Fix: The "Check ID First" Protocol
+
+We can't just blindly add `role: 'user'` every time, because if an **Admin** logs in with Google, we don't want to accidentally downgrade them to a 'user'!
+
+So we implemented a **Check-Then-Act** logic:
+
+**The Code Breakdown:**
+
+```tsx
+// src/pages/SignupPage.tsx
+
+const handleGoogleSignup = async () => {
+  // 1. Do the Google Dance (Popup)
+  const result = await signInWithPopup(auth, provider);
+
+  // 2. CHECK: Does this person already exist?
+  const userRef = doc(db, "users", result.user.uid);
+  const userSnap = await getDoc(userRef);
+
+  // 3. DECIDE
+  if (!userSnap.exists()) {
+    // AHA! It's a new recruit.
+    // We MUST include 'role: "user"' to satisfy the Bouncer.
+    await setDoc(userRef, {
+      email: result.user.email,
+      role: "user", // <--- The Golden Ticket
+      createdAt: serverTimestamp(),
+    });
+  }
+  // If they DO exist, we do NOTHING.
+  // We just let them in. This protects Admins from being downgraded.
+};
+```
+
+## 27.3 Terminology for your Interviews
+
+- **Race Condition:** When two processes compete to finish first, and the wrong one wins (e.g., the redirect happened before the state updated).
+- **Single Source of Truth (SSOT):** Storing state in ONE place (`AuthContext`) rather than scattering it in many (Navbar, Sidebar, etc).
+- **Optimistic UI:** Updating the screen _before_ the server confirms it (we didn't use this today, but it's good to know). We used **Reactive UI** (updating _as soon as_ the state changes).
+- **RBAC (Role-Based Access Control):** The logic where we check `if (isAdmin)` before showing the Dashboard.

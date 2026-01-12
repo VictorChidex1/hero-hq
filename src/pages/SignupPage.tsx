@@ -8,7 +8,7 @@ import { auth } from "../lib/firebase";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "sonner";
 import { Lock, Mail, ArrowLeft, Eye, EyeOff } from "lucide-react";
-import { setDoc, doc, serverTimestamp } from "firebase/firestore";
+import { setDoc, doc, serverTimestamp, getDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import SEO from "../components/seo/SEO";
 
@@ -61,21 +61,24 @@ export default function SignupPage() {
   const handleGoogleSignup = async () => {
     try {
       const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({
+        prompt: "select_account",
+      });
       const result = await signInWithPopup(auth, provider);
 
-      // Create/Merge user document (in case they already exist, we don't want to overwrite role)
-      await setDoc(
-        doc(db, "users", result.user.uid),
-        {
-          email: result.user.email,
-          // We use merge: true so we don't overwrite an existing 'admin' role if they log in again
-        },
-        { merge: true }
-      );
+      // Check if user exists first to prevent overwriting roles
+      // and to satisfy "allow create" rules which require role: 'user'
+      const userRef = doc(db, "users", result.user.uid);
+      const userSnap = await getDoc(userRef);
 
-      // If it's a new user, 'role' might be missing. We can set a default if needed,
-      // but usually we manually promote admins in the console anyway.
-      // Ideally, check existence, but for now merge is safe.
+      if (!userSnap.exists()) {
+        // Create new user with default role
+        await setDoc(userRef, {
+          email: result.user.email,
+          role: "user",
+          createdAt: serverTimestamp(),
+        });
+      }
 
       toast.success("Welcome aboard!");
       navigate("/");
@@ -88,8 +91,8 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen bg-brand-dark flex flex-col p-4 relative">
       <SEO
-        title="Join the Force | Hero HQ"
-        description="Create an admin account for Hero HQ."
+        title="Join the Force | CanMan HQ"
+        description="Create an admin account for CanMan HQ."
       />
       <Link
         to="/"

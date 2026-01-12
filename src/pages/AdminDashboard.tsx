@@ -1,6 +1,18 @@
 import { useEffect, useState } from "react";
 import SEO from "../components/seo/SEO";
-import { collection, query, getDocs, deleteDoc, doc } from "firebase/firestore";
+import {
+  collection,
+  query,
+  getDocs,
+  deleteDoc,
+  doc,
+  orderBy,
+  limit,
+  startAfter,
+  endBefore,
+  limitToLast,
+  type DocumentSnapshot,
+} from "firebase/firestore";
 import { db, auth } from "../lib/firebase";
 import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
@@ -14,9 +26,14 @@ import {
   User,
   Trash2,
   Eye,
+  ChevronLeft,
+  ChevronRight,
+  RefreshCw,
 } from "lucide-react";
 import { type Applicant } from "../types";
 import ApplicationInspector from "../components/admin/ApplicationInspector";
+
+const ITEMS_PER_PAGE = 15;
 
 export default function AdminDashboard() {
   const [applicants, setApplicants] = useState<Applicant[]>([]);
@@ -24,42 +41,102 @@ export default function AdminDashboard() {
     null
   );
   const [loading, setLoading] = useState(true);
+
+  // Pagination State
+  const [lastVisible, setLastVisible] = useState<DocumentSnapshot | null>(null);
+  const [firstVisible, setFirstVisible] = useState<DocumentSnapshot | null>(
+    null
+  );
+  const [page, setPage] = useState(1);
+  const [isNextAvailable, setIsNextAvailable] = useState(true); // Naive check
+
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchApplicants = async () => {
-      try {
-        const q = query(collection(db, "applicants"));
+  // Fetch Function
+  const fetchApplicants = async (
+    direction: "init" | "next" | "prev" = "init"
+  ) => {
+    setLoading(true);
+    try {
+      const baseQuery = collection(db, "applicants");
+      let q;
 
-        const querySnapshot = await getDocs(q);
-
-        const apps = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Applicant[];
-
-        // Client-Side Sort: Newest first
-        apps.sort((a, b) => {
-          const timeA = a.createdAt?.seconds || 0;
-          const timeB = b.createdAt?.seconds || 0;
-          return timeB - timeA;
-        });
-
-        setApplicants(apps);
-      } catch (error: any) {
-        console.error("Error fetching documents: ", error);
-        toast.error(`Failed to load: ${error.message}`);
-      } finally {
-        setLoading(false);
+      if (direction === "next" && lastVisible) {
+        q = query(
+          baseQuery,
+          orderBy("createdAt", "desc"),
+          startAfter(lastVisible),
+          limit(ITEMS_PER_PAGE)
+        );
+      } else if (direction === "prev" && firstVisible) {
+        // To go back, we query *backwards* from the first visible item
+        // But Firestore pagination is tricky.
+        // A simpler way for "Prev" in this context without maintaining a full stack:
+        // Ideally we'd maintain a stack of "startAfter" cursors.
+        // For simplicity in this iteration, keeping it robust:
+        // We will stick to "Next" flow or just reset for now if complex,
+        // BUT strict "Prev" requires endBefore(firstVisible) limitToLast(15).
+        q = query(
+          baseQuery,
+          orderBy("createdAt", "desc"),
+          endBefore(firstVisible),
+          limitToLast(ITEMS_PER_PAGE)
+        );
+      } else {
+        // Init or Reset
+        q = query(
+          baseQuery,
+          orderBy("createdAt", "desc"),
+          limit(ITEMS_PER_PAGE)
+        );
       }
-    };
 
-    fetchApplicants();
+      const querySnapshot = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        if (direction === "next") {
+          setIsNextAvailable(false);
+          toast.info("No more applications.");
+        } else if (direction === "init") {
+          setApplicants([]);
+        }
+        setLoading(false);
+        return;
+      }
+
+      // Update Cursors
+      setFirstVisible(querySnapshot.docs[0]);
+      setLastVisible(querySnapshot.docs[querySnapshot.docs.length - 1]);
+
+      // Check if we likely have a next page (if we got full page)
+      setIsNextAvailable(querySnapshot.docs.length === ITEMS_PER_PAGE);
+
+      const apps = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Applicant[];
+
+      setApplicants(apps);
+
+      // Update Page Number
+      if (direction === "next") setPage((p) => p + 1);
+      if (direction === "prev") setPage((p) => Math.max(1, p - 1));
+      if (direction === "init") setPage(1);
+    } catch (error: any) {
+      console.error("Error fetching documents: ", error);
+      toast.error(`Failed to load: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchApplicants("init");
   }, []);
 
   const handleLogout = async () => {
     await signOut(auth);
-    navigate("/login");
+    navigate("/");
   };
 
   const handleDelete = async (id: string) => {
@@ -71,7 +148,6 @@ export default function AdminDashboard() {
       await deleteDoc(doc(db, "applicants", id));
       setApplicants((prev) => prev.filter((app) => app.id !== id));
 
-      // If the deleted applicant was open in the inspector, close it.
       if (selectedApplicant?.id === id) {
         setSelectedApplicant(null);
       }
@@ -86,7 +162,7 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
       <SEO
-        title="Mission Control | Hero HQ"
+        title="Mission Control | CanMan HQ"
         description="Admin dashboard for managing applications."
       />
 
@@ -132,8 +208,17 @@ export default function AdminDashboard() {
                 Review and manage potential candidates.
               </p>
             </div>
-            <div className="bg-blue-50 text-brand-blue font-bold px-4 py-1.5 rounded-full text-sm">
-              {applicants.length} Total
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => fetchApplicants("init")}
+                className="p-2 text-gray-400 hover:text-brand-blue transition-colors"
+                title="Refresh"
+              >
+                <RefreshCw className="w-5 h-5" />
+              </button>
+              <div className="bg-blue-50 text-brand-blue font-bold px-4 py-1.5 rounded-full text-sm">
+                Page {page}
+              </div>
             </div>
           </div>
 
@@ -277,6 +362,31 @@ export default function AdminDashboard() {
                 )}
               </tbody>
             </table>
+          </div>
+
+          {/* Pagination Controls */}
+          <div className="border-t border-gray-100 bg-gray-50 px-6 py-4 flex items-center justify-between">
+            <span className="text-sm text-gray-500">
+              Showing {applicants.length} records
+            </span>
+            <div className="flex gap-3">
+              <button
+                onClick={() => fetchApplicants("prev")}
+                disabled={page === 1 || loading}
+                className="flex items-center gap-1 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Previous
+              </button>
+              <button
+                onClick={() => fetchApplicants("next")}
+                disabled={!isNextAvailable || loading}
+                className="flex items-center gap-1 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
+              >
+                Next
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
       </main>

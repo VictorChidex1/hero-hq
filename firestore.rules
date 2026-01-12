@@ -54,10 +54,18 @@ service cloud.firestore {
         // Must have these fields
         incoming.keys().hasAll(['name', 'email', 'resumeUrl', 'status']) &&
         
-        // Data Type Checks
-        incoming.name is string && incoming.name.size() > 0 &&
-        incoming.email is string && incoming.email.size() > 0 &&
+        // Data Type & Size Checks
+        incoming.name is string && incoming.name.size() > 0 && incoming.name.size() < 100 &&
+        incoming.email is string && incoming.email.size() > 0 && incoming.email.size() < 100 &&
+        incoming.email.matches('^[^@]+@[^@]+\\.[a-zA-Z]{2,}$') &&
         incoming.resumeUrl is string && incoming.resumeUrl.size() > 0 &&
+        incoming.resumeUrl.matches('^https?://.*') &&
+        
+        // Message (Optional but limited)
+        (
+          !('message' in incoming) || 
+          (incoming.message is string && incoming.message.size() < 1000)
+        ) &&
         
         // Status defaults to 'new'
         incoming.status == 'new';
