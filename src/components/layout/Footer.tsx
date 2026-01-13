@@ -27,10 +27,10 @@ export default function Footer() {
               <p>Dallas, Texas</p>
 
               <a
-                href="mailto:hello@canmancan.com"
+                href="mailto:support@canmancan.com"
                 className="hover:text-brand-green transition-colors"
               >
-                hello@canmancan.com
+                support@canmancan.com
               </a>
             </div>
           </div>

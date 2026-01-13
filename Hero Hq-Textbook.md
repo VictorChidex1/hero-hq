@@ -2142,3 +2142,69 @@ By separating these concerns, we achieved **Zero Risk**.
 - But we ENABLED WordPress.
 
 This is what we call **Robust DevOps Engineering**.
+# Chapter 29: The CanMan Design System (Identity Integration)
+
+_In this final chapter, we explore how we moved from a generic "Hero" theme to a specific, brand-compliant "CanMan" identity._
+
+## 29.1 The "3D Pill" Button Strategy
+
+To match the client's existing WordPress site, we couldn't rely on standard flat design. We needed to engineer a specific "Cartoon 3D" aesthetic.
+
+### The Specification
+
+- **Shape:** Full Pill (`rounded-full`)
+- **Border:** Thick White (`border-[3px] border-white`)
+- **Shadow:** Deep Drop Shadow for 3D effect (`shadow-[0_6px_12px_rgba(0,0,0,0.15)]`)
+- **Text:** Uppercase, Extra Bold, with a **Text Shadow** to make it "pop".
+
+### The Code (`index.css`)
+
+We created a globally reusable utility class `.btn-primary` to enforce this everywhere.
+
+```css
+@layer components {
+  .btn-primary {
+    @apply uppercase font-extrabold text-white tracking-wide
+           bg-brand-green border-[3px] border-white rounded-full
+           /* The "Button" Shadow */
+           shadow-[0_6px_12px_rgba(0,0,0,0.15)] 
+           /* The Interaction */
+           hover:shadow-[0_8px_16px_rgba(0,0,0,0.2)] hover:-translate-y-0.5
+           active:translate-y-0 active:shadow-md
+           transition-all duration-200;
+
+    /* The "3D" Text Pop (Crucial for the cartoon look) */
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.4);
+  }
+}
+```
+
+## 29.2 Typography Overrides
+
+The brand uses **"Open Sans"** with a very heavy weight (Extrabold 800) for headings to match the truck fleet lettering.
+
+We enforced this globally in the base layer:
+
+```css
+@layer base {
+  html {
+    font-family: "Open Sans", sans-serif;
+  }
+
+  /* Force all headings to match the Brand Voice */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Open Sans", sans-serif;
+    font-weight: 800;
+    @apply text-brand-blue;
+  }
+}
+```
+
+## 29.3 Conclusion
+
+By centralizing these styles in `index.css`, we ensured that every button—whether in the Navbar, Hero, or Floating Form—feels like part of the same "CanMan" universe, providing a seamless experience when embedded in the main WordPress site.
