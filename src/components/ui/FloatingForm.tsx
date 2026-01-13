@@ -177,10 +177,10 @@ export default function FloatingForm() {
           <button
             type="submit"
             disabled={isSubmitting || status === "UPLOADING"}
-            className={`w-full py-4 rounded-xl font-bold text-lg shadow-lg transition-all transform active:scale-[0.98] ${
+            className={`w-full py-4 text-lg ${
               isSubmitting
-                ? "bg-gray-400 cursor-not-allowed text-white"
-                : "bg-brand-green hover:bg-[#5a8013] text-white"
+                ? "bg-gray-400 cursor-not-allowed text-white rounded-xl font-bold"
+                : "btn-primary" // Uses the new global class
             }`}
           >
             {isSubmitting ? "Sending Application..." : "Submit Application"}

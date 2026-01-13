@@ -15,7 +15,7 @@ function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <BrowserRouter>
+        <BrowserRouter basename={import.meta.env.BASE_URL}>
           <Toaster position="top-right" richColors />
           <Routes>
             <Route

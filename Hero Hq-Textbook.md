@@ -2062,3 +2062,83 @@ const handleGoogleSignup = async () => {
 - **Single Source of Truth (SSOT):** Storing state in ONE place (`AuthContext`) rather than scattering it in many (Navbar, Sidebar, etc).
 - **Optimistic UI:** Updating the screen _before_ the server confirms it (we didn't use this today, but it's good to know). We used **Reactive UI** (updating _as soon as_ the state changes).
 - **RBAC (Role-Based Access Control):** The logic where we check `if (isAdmin)` before showing the Dashboard.
+# Chapter 28: The Chameleon Deployment - Adapting to Hostile Environments
+
+_In this chapter, we learn how to make our application a "Chameleon"—changing its internal structure based on where it lives (Localhost vs. Cloud vs. Subdirectory)._
+
+## 28.1 The Problem: "Where am I?"
+
+An app is like a fish.
+
+1.  **Localhost:** It's in a freshwater tank (`/`). It swims happily.
+2.  **Vercel:** It's in a river (`/`). Still freshwater. All good.
+3.  **WordPress Subdirectory:** Suddenly, we throw it into the Ocean (`/careers/`). The water is salty.
+
+If the fish expects freshwater (root path `/`) and gets saltwater (subdirectory `/careers/`), it dies. It tries to load images from `domain.com/logo.png` instead of `domain.com/careers/logo.png`.
+
+## 28.2 The Solution: The Tri-State Protocol
+
+We needed a way to tell the app: _"Hey, you are going to the Ocean today, so pack your saltwater gear."_
+
+We implemented a **Tri-State Strategy**:
+
+1.  **Dev Mode:** Stay simple (`/`).
+2.  **Standard Build:** Stay simple (`/`).
+3.  **WordPress Build:** Adapt to subdirectory (`/careers/`).
+
+### 28.3 The Terminology
+
+- **Environment Variables (`process.env`):** Secret messages we pass to the computer before it starts a job. Like whispering "Be careful" before sending a soldier on a mission.
+- **Base Path (`base`):** The "Home Directory" of the app. If base is `/`, images load from `/img.png`. If base is `/careers/`, images load from `/careers/img.png`.
+- **Routing Basename:** Telling React Router, "Pretend that `/careers/` is actually the root of the world."
+
+### 28.4 The Code Breakdown
+
+#### Step 1: The "Secret Whisper" (package.json)
+
+We created a new command that whispers `BUILD_TARGET=wordpress`.
+
+```json
+"scripts": {
+  // Standard (Freshwater)
+  "build": "tsc -b && vite build",
+
+  // Special (Saltwater) - We use 'cross-env' to make sure this whisper works on Mac and Windows.
+  "build:wordpress": "cross-env BUILD_TARGET=wordpress tsc -b && vite build"
+}
+```
+
+#### Step 2: The "Brain" (vite.config.ts)
+
+The configuration file listens for the whisper.
+
+```typescript
+export default defineConfig({
+  plugins: [react()],
+  // LOGIC: Did someone whisper 'wordpress'?
+  // YES: Set base to '/careers/'
+  // NO: Set base to '/'
+  base: process.env.BUILD_TARGET === "wordpress" ? "/careers/" : "/",
+});
+```
+
+#### Step 3: The "Map" (App.tsx)
+
+Finally, we told the Navigation System (React Router) to respect the decision made by the Brain.
+
+```tsx
+// import.meta.env.BASE_URL is how Vite passes the 'base' setting to the code.
+<BrowserRouter basename={import.meta.env.BASE_URL}>
+  {/* Now all links will automatically prepend '/careers/' if needed */}
+</BrowserRouter>
+```
+
+## 28.5 Summary
+
+By separating these concerns, we achieved **Zero Risk**.
+
+- We didn't break Vercel.
+- We didn't break Localhost.
+- But we ENABLED WordPress.
+
+This is what we call **Robust DevOps Engineering**.

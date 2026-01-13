@@ -78,9 +78,9 @@ export default function Navbar() {
           {/* Pulsing CTA - Manually aligned with negative margin for optical balance */}
           <button
             onClick={() => scrollToSection("application-form")}
-            className="relative group bg-brand-green text-white px-6 py-2.5 rounded-full font-bold text-sm shadow-lg shadow-brand-green/30 hover:shadow-brand-green/60 hover:-translate-y-0.5 transition-all duration-300 -mr-4"
+            className="group relative btn-primary px-8 py-3 text-sm -mr-4"
           >
-            {/* Pulsing Ring Effect */}
+            {/* Pulsing Ring Effect (Optional - keeps a bit of 'alive' feel) */}
             <span className="absolute -inset-1 rounded-full bg-brand-green/20 animate-pulse group-hover:bg-brand-green/30 transition-all"></span>
             <span className="relative">Apply Now</span>
           </button>

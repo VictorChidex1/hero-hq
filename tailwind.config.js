@@ -13,7 +13,7 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["Inter", "sans-serif"], // Make sure to import Inter in your CSS
+        sans: ["Open Sans", "sans-serif"], // Make sure to import Open Sans in your CSS
       },
       boxShadow: {
         float:

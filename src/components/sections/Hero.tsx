@@ -56,11 +56,9 @@ export default function Hero() {
         >
           <button
             onClick={scrollToForm}
-            className="group relative bg-brand-green hover:bg-[#5a8013] text-white font-bold py-5 px-12 rounded-full shadow-[0_20px_50px_rgba(108,152,23,0.3)] transition-all transform hover:scale-105 active:scale-95 overflow-hidden"
+            className="btn-primary py-5 px-12 text-lg shadow-[0_20px_50px_rgba(108,152,23,0.3)]"
           >
-            <span className="relative z-10 text-lg">Start Your Audition</span>
-            {/* Glossy sheen animation within button */}
-            <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-shimmer"></div>
+            <span className="relative z-10">Start Your Audition</span>
           </button>
         </motion.div>
       </div>
